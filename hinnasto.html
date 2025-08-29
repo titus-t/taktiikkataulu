@@ -1,0 +1,127 @@
+<!DOCTYPE html> 
+
+<html lang="en"> 
+
+  <head> 
+
+    <meta charset="utf-8" /> 
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+
+    <title>Kuntosali</title> 
+
+    <link href="tyyli.css" rel="stylesheet"/> 
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
+
+  </head> 
+
+  <body><nav class="topnav" id="myTopnav"> 
+
+    <a href="kuntosalietusivu.html" class="nav-link">Koti</a> 
+
+    <a href="hinnasto.html" class="nav-link">Hinnasto & Aukioloajat</a> 
+
+    <a href="Galleria.html" class="nav-link">Galleria</a> 
+
+    <a href="Yhteystiedot.html" class="nav-link">Yhteystiedot</a> 
+
+    <a href="javascript:void(0);" class="icon" onclick="myFunction()"> 
+
+      <i class="fa fa-bars"></i> 
+
+    </a> 
+
+</nav> 
+
+ 
+
+<h1>Hinnasto & Aukioloajat</h1> 
+
+<p>Teksti</p> 
+
+<h2>Alaotsikko</h2> 
+
+<p>Lisää tekstiä</p> 
+
+ 
+
+<footer> 
+
+    <p> 
+
+      <a href="https://www.kela.fi/henkiloasiakkaat" target="_blank">Vieraile sivullamme</a> 
+
+    </p> 
+
+    <p class="address">Mannerheimintie 1 A 1</p> 
+
+</footer> 
+
+ 
+
+<script> 
+
+    // Responsiivinen valikko 
+
+    function myFunction() { 
+
+        var x = document.getElementById("myTopnav"); 
+
+        if (x.className === "topnav") { 
+
+            x.className += " responsive"; 
+
+        } else { 
+
+            x.className = "topnav"; 
+
+        } 
+
+    } 
+
+ 
+
+    // Valikon "active"-luokan lisääminen sen perusteella, mikä sivu on auki 
+
+    window.onload = function() { 
+
+        // Haetaan nykyinen URL-polku 
+
+        var path = window.location.pathname; 
+
+        // Poimitaan nykyinen sivu (esim. "Koti.html") 
+
+        var currentPage = path.substring(path.lastIndexOf("/") + 1); 
+
+ 
+
+        // Haetaan kaikki valikon linkit 
+
+        var links = document.querySelectorAll('.nav-link'); 
+
+        links.forEach(function(link) { 
+
+            var href = link.getAttribute('href'); // Hakee linkin href-arvon 
+
+            if (href === currentPage) { 
+
+                link.classList.add('active'); // Lisää "active"-luokan oikealle linkille 
+
+            } else { 
+
+                link.classList.remove('active'); // Poistaa "active"-luokan muilta linkeiltä 
+
+            } 
+
+        }); 
+
+    } 
+
+</script> 
+
+ 
+
+</body> 
+
+</html> 
