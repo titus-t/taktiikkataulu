@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+
+    <meta charset="utf-8" /> 
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+
+    <title>Kuntosali</title> 
+
+    <link href="tyyli.css" rel="stylesheet"/> 
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
+
+  </head> 
+
+  <body> <nav class="topnav" id="myTopnav"> 
+
+    <a href="index.html" class="nav-link">Koti</a> 
+
+    <a href="hinnasto.html" class="nav-link">Hinnasto & Aukioloajat</a> 
+
+    <a href="galleria.html" class="nav-link">Galleria</a> 
+
+    <a href="yhteystiedot.html" class="nav-link">Yhteystiedot</a> 
+
+    <a href="javascript:void(0);" class="icon" onclick="myFunction()"> 
+
+      <i class="fa fa-bars"></i> 
+
+    </a> 
+
+</nav> 
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Salibandyn taktiikkataulu – demo</title>
+  <style>
+    :root{
+      --bg:#0b1220;--panel:#121a2a;--ink:#e8eefc;--accent:#6dd6ff;--accent2:#ff8aa3;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji"}
+    header{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(18,26,42,.98),rgba(18,26,42,.92));backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid rgba(255,255,255,.06)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;max-width:1100px;margin:0 auto;padding:.6rem 1rem}
+    .toolbar h1{font-size:16px;margin:0 .5rem 0 0;opacity:.8}
+    button, .file-btn{appearance:none;border:1px solid rgba(255,255,255,.12);background:#161f33;color:var(--ink);padding:.5rem .7rem;border-radius:.7rem;cursor:pointer;transition:.15s transform, .2s background;display:inline-flex;align-items:center;gap:.5rem}
+    button:hover,.file-btn:hover{background:#1c2842}
+    button[aria-pressed="true"]{outline:2px solid var(--accent);background:#0f1a31}
+    .spacer{flex:1}
+    .badge{font-size:12px;padding:.15rem .4rem;border-radius:.5rem;background:#13203a;border:1px solid rgba(255,255,255,.08);opacity:.9}
+    main{max-width:1100px;margin:0 auto;padding:1rem;display:grid;gap:1rem}
+    #board-wrap{background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:1rem;padding:1rem}
+    #container{width:100%;height:560px;border-radius:.75rem;overflow:hidden;background:#0b1f22;}
+    .hint{font-size:13px;opacity:.85}
+    .hint kbd{background:#10192b;border:1px solid rgba(255,255,255,.1);padding:.1rem .35rem;border-radius:.35rem;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+    .palette{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+    .color{width:22px;height:22px;border-radius:6px;border:1px solid rgba(255,255,255,.25);cursor:pointer}
+    footer{opacity:.75;text-align:center;padding:1rem}
+    a{color:var(--accent)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="toolbar">
+      <h1>Salibandyn taktiikkataulu</h1>
+      <button id="selectModeBtn" title="Valitse/siirrä (V)">Valitse</button>
+      <button id="pathModeBtn" title="Piirrä liikerata (P)">Polku</button>
+      <button id="ballModeBtn" title="Lisää/siirrä pallo (B)">Pallo</button>
+      <button id="animateBtn" title="Animoi valitut (A)">Animoi</button>
+      <span class="spacer"></span>
+      <button id="addTeamsBtn" title="Lisää kaksi 5+mv joukkuetta">Lisää 5v5 + mv</button>
+      <button id="clearBtn" title="Tyhjennä kenttä">Tyhjennä</button>
+      <button id="saveBtn" title="Lataa JSON">Tallenna</button>
+      <label class="file-btn" for="loadInput" title="Lataa JSON">Lataa <input id="loadInput" type="file" accept="application/json" hidden /></label>
+      <span class="badge">Beta-pohja</span>
+    </div>
+  </header>
+
+  <main>
+    <section id="board-wrap">
+      <div id="container"></div>
+      <p class="hint">Vihjeet: <strong>Polku</strong>-tilassa klikkaa kenttää lisätäksesi pisteitä; <kbd>Enter</kbd> tai <kbd>kaksoisklikkaus</kbd> lopettaa polun. Klikkaa pelaajaa valitaksesi sen. Paina <strong>Animoi</strong> siirtääksesi valitut pelaajat lähimpää valittua polkua pitkin. Näppäimet: <kbd>V</kbd> Valitse, <kbd>P</kbd> Polku, <kbd>B</kbd> Pallo, <kbd>Del</kbd> Poista valitut.</p>
+      <div class="palette">
+        Pelaajien väri: 
+        <div class="color" data-color="#5ec8ff" style="background:#5ec8ff"></div>
+        <div class="color" data-color="#ff7aa2" style="background:#ff7aa2"></div>
+        <div class="color" data-color="#9aff7a" style="background:#9aff7a"></div>
+        <div class="color" data-color="#ffd36d" style="background:#ffd36d"></div>
+      </div>
+    </section>
+    
+  </main>
+
+  <!-- Konva.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/konva@9.3.13/konva.min.js"></script>
+  <script>
+  // --- Yleisasetukset
+  const BOARD_W = 1000; // koordinaatit piirtyvät tähän kokoon
+  const BOARD_H = 500;
+
+  // State
+  let mode = 'select'; // 'select' | 'path' | 'ball'
+  let currentColor = '#5ec8ff';
+  let paths = []; // {node:Konva.Arrow, points:number[]}
+  let players = []; // {node:Konva.Group, team:string, num:number}
+  let selected = new Set();
+  let ball = null;
+
+  // Konva stage + layers
+  const container = document.getElementById('container');
+  const stage = new Konva.Stage({ container: 'container', width: BOARD_W, height: BOARD_H });
+  const fieldLayer = new Konva.Layer();
+  const pathLayer = new Konva.Layer();
+  const playerLayer = new Konva.Layer();
+  stage.add(fieldLayer, pathLayer, playerLayer);
+
+  // --- Piirrä salibandykenttä (noin 40x20m mittasuhteet)
+  function drawField(){
+    fieldLayer.destroyChildren();
+    const w = BOARD_W, h = BOARD_H, r = 30; // kaarretut kulmat
+
+    // Kentän tausta
+    const bg = new Konva.Rect({ x:0, y:0, width:w, height:h, cornerRadius:r, fill:'#0a2430', stroke:'#7fd7ff33', strokeWidth:2});
+    fieldLayer.add(bg);
+
+    // Keskiviiva
+    fieldLayer.add(new Konva.Line({ points:[w/2,10, w/2,h-10], stroke:'#79d2ff55', dash:[8,8] }));
+
+    // Keskipiste ja -ympyrä
+    fieldLayer.add(new Konva.Circle({ x:w/2, y:h/2, radius:38, stroke:'#79d2ff66' }));
+    fieldLayer.add(new Konva.Circle({ x:w/2, y:h/2, radius:2, fill:'#79d2ffcc' }));
+
+    // Maalialueet (suuntaa-antavat)
+    const creaseW = 90, creaseH = 60;
+    fieldLayer.add(new Konva.Rect({ x:10, y:h/2-creaseH/2, width:creaseW, height:creaseH, stroke:'#79d2ff66' }));
+    fieldLayer.add(new Konva.Rect({ x:w-10-creaseW, y:h/2-creaseH/2, width:creaseW, height:creaseH, stroke:'#79d2ff66' }));
+
+    // Maalit
+    const goalW=20, goalH=40;
+    fieldLayer.add(new Konva.Rect({ x:0, y:h/2-goalH/2, width:goalW, height:goalH, stroke:'#ff8aa3aa'}));
+    fieldLayer.add(new Konva.Rect({ x:w-goalW, y:h/2-goalH/2, width:goalW, height:goalH, stroke:'#ff8aa3aa'}));
+
+    fieldLayer.draw();
+  }
+  drawField();
+
+  // --- Apufunktiot
+  function createPlayer(x,y,color,label){
+    const radius = 14;
+    const circle = new Konva.Circle({ x, y, radius, fill:color, stroke:'#00000055', strokeWidth:2, shadowColor:'#000', shadowBlur:6, shadowOpacity:.25 });
+    const text = new Konva.Text({ x:x-10, y:y-8, text:label||'', fontSize:14, fontStyle:'700', fill:'#00131a' });
+    const group = new Konva.Group({ x:0, y:0, draggable:true });
+    group.add(circle, text);
+    group.cache();
+
+    group.on('dragmove', () => { constrainToField(group, radius); playerLayer.batchDraw(); });
+    group.on('mousedown', (e)=>{
+      if (mode !== 'select') return;
+      const multi = e.evt.shiftKey || e.evt.metaKey || e.evt.ctrlKey;
+      if (!multi) { clearSelection(); }
+      toggleSelection(group);
+    });
+
+    group.toObject = () => ({ x: circle.x(), y: circle.y(), color, label });
+
+    playerLayer.add(group);
+    players.push({ node: group, team: color, num: label || '' });
+    return group;
+  }
+
+  function createBall(x,y){
+    const node = new Konva.Circle({ x, y, radius:6, fill:'#ffe38d', stroke:'#00000066', strokeWidth:1.5, draggable:true });
+    node.on('dragmove', ()=>{ constrainToField(node, 6); playerLayer.batchDraw(); });
+    node.on('mousedown', (e)=>{ if (mode==='select'){ clearSelection(); toggleSelection(node);} });
+    playerLayer.add(node);
+    return node;
+  }
+
+  function constrainToField(node, padding){
+    const x = Math.min(BOARD_W - padding, Math.max(padding, node.x()));
+    const y = Math.min(BOARD_H - padding, Math.max(padding, node.y()));
+    node.position({x,y});
+  }
+
+  function toggleSelection(node){
+    const key = node._id;
+    if (selected.has(key)){
+      selected.delete(key);
+      setSelectedStyle(node,false);
+    }else{
+      selected.add(key);
+      setSelectedStyle(node,true);
+    }
+  }
+
+  function setSelectedStyle(node, on){
+    if (node instanceof Konva.Group){
+      const circle = node.findOne('Circle');
+      if (circle) circle.stroke(on ? '#ffffff' : '#00000055');
+    } else if (node instanceof Konva.Circle){
+      node.stroke(on ? '#ffffff' : '#00000066');
+    } else if (node instanceof Konva.Arrow || node instanceof Konva.Line){
+      node.stroke(on ? '#fff' : node.stroke());
+    }
+  }
+
+  function clearSelection(){
+    // reset styles
+    players.forEach(p => setSelectedStyle(p.node, false));
+    if (ball) setSelectedStyle(ball, false);
+    paths.forEach(p => setSelectedStyle(p.node,false));
+    selected.clear();
+  }
+
+  function nearestPathPoint(points, x, y){
+    // palauta lähimmän pisteen indeksi
+    let bestI = 0; let bestD = Infinity;
+    for (let i=0;i<points.length;i+=2){
+      const dx = points[i]-x, dy = points[i+1]-y; const d = dx*dx+dy*dy;
+      if (d<bestD){bestD=d;bestI=i;}
+    }
+    return bestI;
+  }
+
+  // --- Polun piirto
+  let drawingArrow = null;
+  function startPath(x,y){
+    drawingArrow = new Konva.Arrow({ points:[x,y], stroke: currentColor, fill: currentColor, strokeWidth:3, pointerLength:10, pointerWidth:10, lineCap:'round', lineJoin:'round', tension:0.2 });
+    pathLayer.add(drawingArrow);
+  }
+  function addPointToPath(x,y){
+    if (!drawingArrow) return;
+    const pts = drawingArrow.points();
+    pts.push(x,y);
+    drawingArrow.points(pts);
+    pathLayer.batchDraw();
+  }
+  function finishPath(){
+    if (!drawingArrow) return;
+    const pts = drawingArrow.points();
+    if (pts.length < 4){ drawingArrow.destroy(); drawingArrow=null; pathLayer.draw(); return; }
+    const node = drawingArrow;
+    // mahdollista valita
+    node.on('mousedown', (e)=>{ if (mode==='select'){ const multi = e.evt.shiftKey||e.evt.ctrlKey||e.evt.metaKey; if(!multi) clearSelection(); toggleSelection(node);} });
+    paths.push({ node, points: pts.slice() });
+    drawingArrow = null;
+    pathLayer.draw();
+  }
+
+  // --- Animaatio: siirrä valitut pelaajat lähimmälle valitulle polulle
+  async function animateSelection(){
+    const selPlayers = players.filter(p=> selected.has(p.node._id));
+    const selPaths = paths.filter(p=> selected.has(p.node._id));
+    if (selPlayers.length===0 || selPaths.length===0){
+      flashHint('Valitse ainakin yksi pelaaja ja yksi polku. (Vinkki: käytä Shift monivalintaan)');
+      return;
+    }
+    // animoi jokaiselle pelaajalle lähin polku
+    for (const p of selPlayers){
+      // etsi lähin polku aloituspisteen mukaan
+      const start = p.node.findOne('Circle');
+      const sx = start.x(), sy = start.y();
+      let best = selPaths[0]; let bestDist = Infinity;
+      for (const path of selPaths){
+        const idx = nearestPathPoint(path.points, sx, sy);
+        const dx = path.points[idx]-sx, dy = path.points[idx+1]-sy;
+        const d = dx*dx+dy*dy; if (d<bestDist){bestDist=d;best=path;}
+      }
+      await animateAlong(p.node, best.points);
+    }
+  }
+
+  function animateAlong(node, points){
+    return new Promise(async resolve =>{
+      const circle = node instanceof Konva.Group ? node.findOne('Circle') : node; // Group tai Circle
+      const speed = 220; // px/s
+      for (let i=0;i<points.length-2;i+=2){
+        const x1 = i===0 ? circle.x() : points[i];
+        const y1 = i===0 ? circle.y() : points[i+1];
+        const x2 = points[i+2];
+        const y2 = points[i+3];
+        const dist = Math.hypot(x2-x1, y2-y1);
+        const dur = dist / speed;
+        await tweenTo(circle, { x:x2, y:y2 }, dur);
+        // siirrä tekstin mukana
+        if (node instanceof Konva.Group){ const text = node.findOne('Text'); text.position({ x: x2-10, y: y2-8}); }
+      }
+      if (node instanceof Konva.Group) node.draw();
+      resolve();
+    });
+  }
+
+  function tweenTo(node, props, duration){
+    return new Promise(res=>{
+      const tw = new Konva.Tween({ node, duration: Math.max(.1, duration), ...props, onFinish: ()=>{ tw.destroy(); res(); } });
+      tw.play();
+    });
+  }
+
+  // --- Tallenna / Lataa
+  function exportJSON(){
+    const data = {
+      players: players.map(p=>({ x: p.node.findOne('Circle').x(), y: p.node.findOne('Circle').y(), color: p.team, label: p.num })),
+      ball: ball ? { x: ball.x(), y: ball.y() } : null,
+      paths: paths.map(p=>({ points: p.points, color: p.node.stroke() }))
+    };
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'salibandy_taktiikat.json'; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importJSON(file){
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      const data = JSON.parse(e.target.result);
+      clearAll();
+      if (data.players){
+        data.players.forEach(p=> createPlayer(p.x, p.y, p.color, p.label));
+      }
+      if (data.ball){ ball = createBall(data.ball.x, data.ball.y); }
+      if (data.paths){
+        data.paths.forEach(p=>{
+          const arr = new Konva.Arrow({ points: p.points, stroke: p.color || '#5ec8ff', fill: p.color || '#5ec8ff', strokeWidth:3, pointerLength:10, pointerWidth:10, lineCap:'round', lineJoin:'round', tension:0.2 });
+          arr.on('mousedown', (e)=>{ if (mode==='select'){ const multi = e.evt.shiftKey||e.evt.ctrlKey||e.evt.metaKey; if(!multi) clearSelection(); toggleSelection(arr);} });
+          pathLayer.add(arr);
+          paths.push({ node: arr, points: p.points.slice() });
+        });
+      }
+      redrawAll();
+    };
+    reader.readAsText(file);
+  }
+
+  function clearAll(){
+    clearSelection();
+    players.forEach(p=> p.node.destroy()); players=[];
+    paths.forEach(p=> p.node.destroy()); paths=[];
+    if (ball){ ball.destroy(); ball=null; }
+    redrawAll();
+  }
+
+  function redrawAll(){ pathLayer.draw(); playerLayer.draw(); }
+
+  function flashHint(msg){
+    const el = document.createElement('div');
+    el.textContent = msg; el.style.position='absolute'; el.style.right='16px'; el.style.bottom='16px'; el.style.padding='10px 12px'; el.style.background='#121a2add'; el.style.border='1px solid rgba(255,255,255,.15)'; el.style.borderRadius='10px'; el.style.boxShadow='0 10px 25px rgba(0,0,0,.3)';
+    document.body.appendChild(el);
+    setTimeout(()=>{ el.remove(); }, 2600);
+  }
+
+  // --- Alustukset: tapahtumat
+  // kenttäklikkaukset
+  stage.on('mousedown', (e)=>{
+    const pos = stage.getPointerPosition(); if (!pos) return;
+    if (mode==='path'){
+      if (!drawingArrow) startPath(pos.x, pos.y); else addPointToPath(pos.x, pos.y);
+    } else if (mode==='ball' && !ball){ ball = createBall(pos.x, pos.y); playerLayer.draw(); }
+  });
+  stage.on('dblclick', ()=>{ if (mode==='path') finishPath(); });
+  window.addEventListener('keydown', (e)=>{
+    if (e.key==='Enter' && mode==='path'){ finishPath(); }
+    if (e.key.toLowerCase()==='v'){ setMode('select'); }
+    if (e.key.toLowerCase()==='p'){ setMode('path'); }
+    if (e.key.toLowerCase()==='b'){ setMode('ball'); }
+    if (e.key==='Delete' || e.key==='Backspace'){ deleteSelected(); }
+  });
+
+  function deleteSelected(){
+    // Poista valitut polut/pelaajat/pallo
+    paths = paths.filter(p=>{
+      if (selected.has(p.node._id)){ p.node.destroy(); return false; }
+      return true;
+    });
+    players = players.filter(p=>{
+      if (selected.has(p.node._id)){ p.node.destroy(); return false; }
+      return true;
+    });
+    if (ball && selected.has(ball._id)){ ball.destroy(); ball=null; }
+    selected.clear(); redrawAll();
+  }
+
+  function setMode(m){
+    mode = m; clearSelection();
+    document.getElementById('selectModeBtn').setAttribute('aria-pressed', m==='select');
+    document.getElementById('pathModeBtn').setAttribute('aria-pressed', m==='path');
+    document.getElementById('ballModeBtn').setAttribute('aria-pressed', m==='ball');
+  }
+  setMode('select');
+
+  // painikkeet
+  document.getElementById('addTeamsBtn').addEventListener('click', ()=>{
+    // vasen joukkue (sininen)
+    const ly = BOARD_H/2;
+    const xsL = [200, 220, 220, 200, 240];
+    const ysL = [ly, ly-70, ly+70, ly-30, ly+30];
+    for (let i=0;i<5;i++){ createPlayer(xsL[i], ysL[i], '#5ec8ff', String(i+1)); }
+    createPlayer(110, ly, '#5ec8ff', 'MV');
+    // oikea joukkue (pinkki)
+    const xsR = [BOARD_W-200, BOARD_W-220, BOARD_W-220, BOARD_W-200, BOARD_W-240];
+    const ysR = [ly, ly-70, ly+70, ly-30, ly+30];
+    for (let i=0;i<5;i++){ createPlayer(xsR[i], ysR[i], '#ff7aa2', String(i+1)); }
+    createPlayer(BOARD_W-110, ly, '#ff7aa2', 'MV');
+    playerLayer.draw();
+  });
+  document.getElementById('clearBtn').addEventListener('click', clearAll);
+  document.getElementById('saveBtn').addEventListener('click', exportJSON);
+  document.getElementById('loadInput').addEventListener('change', (e)=>{ if (e.target.files && e.target.files[0]) importJSON(e.target.files[0]); e.target.value=''; });
+  document.getElementById('animateBtn').addEventListener('click', animateSelection);
+  document.getElementById('selectModeBtn').addEventListener('click', ()=> setMode('select'));
+  document.getElementById('pathModeBtn').addEventListener('click', ()=> setMode('path'));
+  document.getElementById('ballModeBtn').addEventListener('click', ()=> setMode('ball'));
+
+  // väripaletti
+  document.querySelectorAll('.color').forEach(el=>{
+    el.addEventListener('click', ()=>{ currentColor = el.dataset.color; flashHint('Polun väri vaihdettu'); });
+  });
+
+  // luodaan oletuspallo
+  ball = createBall(BOARD_W/2, BOARD_H/2);
+  playerLayer.draw();
+
+  // responsiivinen skaalaus (säilytetään koordinaatisto 1000x500, skaala vain näkymään)
+  function fitStageIntoParent(){
+    const parent = container.parentElement;
+    const scale = Math.min(parent.clientWidth / BOARD_W, 560 / BOARD_H); // 560px on containerin korkeus
+    const tx = (parent.clientWidth - BOARD_W * scale)/2;
+    stage.width(BOARD_W * scale);
+    stage.height(BOARD_H * scale);
+    stage.scale({x:scale, y:scale});
+    stage.x(tx); stage.draw();
+  }
+  window.addEventListener('resize', fitStageIntoParent);
+  fitStageIntoParent();
+
+  </script>
+</body>
+</html>
