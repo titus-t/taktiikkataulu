@@ -22,6 +22,152 @@ body {margin: 0;
 
     } 
 
+/* ===========================
+   tyyli.css – Salibandy-taulu
+   Värit, typografia, layout
+   =========================== */
+
+:root{
+  --bg:#0b1220;
+  --panel:#121a2a;
+  --ink:#e8eefc;
+  --accent:#6dd6ff;
+  --accent2:#ff8aa3;
+}
+
+*{ box-sizing:border-box }
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,Cantarell,"Noto Sans",Helvetica,Arial;
+}
+
+/* Yläpalkki */
+header{
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:linear-gradient(180deg,rgba(18,26,42,.98),rgba(18,26,42,.92));
+  backdrop-filter:saturate(140%) blur(8px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  align-items:center;
+  max-width:1100px;
+  margin:0 auto;
+  padding:.6rem 1rem;
+}
+
+.toolbar h1{
+  font-size:16px;
+  margin:0 .5rem 0 0;
+  opacity:.8;
+}
+
+/* Nappulat ja tiedostonappi */
+button, .file-btn{
+  appearance:none;
+  border:1px solid rgba(255,255,255,.12);
+  background:#161f33;
+  color:var(--ink);
+  padding:.5rem .7rem;
+  border-radius:.7rem;
+  cursor:pointer;
+  transition:.15s transform,.2s background;
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+}
+
+button:hover, .file-btn:hover{ background:#1c2842 }
+button[aria-pressed="true"]{ outline:2px solid var(--accent); background:#0f1a31 }
+
+.file-btn input{ display:none; }
+
+.spacer{ flex:1 }
+
+.badge{
+  font-size:12px;
+  padding:.15rem .4rem;
+  border-radius:.5rem;
+  background:#13203a;
+  border:1px solid rgba(255,255,255,.08);
+  opacity:.9;
+}
+
+/* Pääalue + kentän säiliö */
+main{
+  max-width:1100px;
+  margin:0 auto;
+  padding:1rem;
+  display:grid;
+  gap:1rem;
+}
+
+#board-wrap{
+  background:var(--panel);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:1rem;
+  padding:1rem;
+}
+
+/* Konva-stage-säiliö – korkeus vastaa JS:ssä käytettyä BOARD_H */
+#container{
+  width:100%;
+  height:560px;
+  border-radius:.75rem;
+  overflow:hidden;
+  background:#0b1f22; /* taustaalue, johon varsinainen kenttä piirtyy sisemmäs */
+}
+
+/* Vihjetekstit + näppäinkorostukset */
+.hint{ font-size:13px; opacity:.85 }
+.hint kbd{
+  background:#10192b;
+  border:1px solid rgba(255,255,255,.1);
+  padding:.1rem .35rem;
+  border-radius:.35rem;
+  font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Väripaletti pisteille/nuolille */
+.palette{
+  display:flex;
+  gap:.5rem;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.color{
+  width:22px;
+  height:22px;
+  border-radius:6px;
+  border:1px solid rgba(255,255,255,.25);
+  cursor:pointer;
+}
+
+/* Alapalkin pieni teksti + linkit */
+footer{ opacity:.75; text-align:center; padding:1rem }
+a{ color:var(--accent) }
+
+/* Pienet ilmoitukset (flashHint) */
+.toast{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  padding:10px 12px;
+  background:#121a2add;
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:10px;
+  box-shadow:0 10px 25px rgba(0,0,0,.3);
+}
+
+
     .topnav a:hover { 
 
     background-color: grey; 
