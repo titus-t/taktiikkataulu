@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Taktiikkataulu</title>
+    <link href="tyyli.css" rel="stylesheet" />
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body>
+    <nav class="topnav" id="myTopnav">
+      <div id="navbar"></div>
+      <script>
+      fetch('navbar.html')
+  .then(response => response.text())
+  .then(html => {
+      const navbar = document.getElementById('navbar');
+      navbar.innerHTML = html;
+
+      // Add active class after loading navbar
+      var path = window.location.pathname;
+      var currentPage = path.substring(path.lastIndexOf("/") + 1);
+      var links = navbar.querySelectorAll('.nav-link');
+      links.forEach(function(link) {
+          var href = link.getAttribute('href');
+          if (href === currentPage) {
+              link.classList.add('active');
+          } else {
+              link.classList.remove('active');
+          }
+      });
+  });
+    </script>
+    </nav>
+    <br>
+    <br>
+    <!-- Wrapper for selector + buttons -->
+    <div id="tacticControls">
+      <select id="categorySelector"></select>
+      <div id="tacticButtons"></div>
+    </div>
+
+    <!-- Iframe container below -->
+    <div id="tacticContainer"></div>
+
+    <script>
+const categorySelector = document.getElementById("categorySelector");
+const tacticButtons = document.getElementById("tacticButtons");
+const container = document.getElementById("tacticContainer");
+
+let tacticsData = {};
+
+// Load JSON
+fetch("tactics.json")
+  .then(res => res.json())
+  .then(data => {
+    tacticsData = data;
+
+    const categories = Object.keys(data);
+
+    // Populate category dropdown
+    categories.forEach(cat => {
+      const option = document.createElement("option");
+      option.value = cat;
+      option.textContent = cat;
+      categorySelector.appendChild(option);
+    });
+
+    if (categories.length > 0) {
+      // Automatically select first category
+      const firstCategory = categories[0];
+      categorySelector.value = firstCategory;
+      populateTactics(firstCategory);
+    }
+  })
+  .catch(err => console.error("Failed to load tactics JSON:", err));
+
+// When category changes
+categorySelector.addEventListener("change", function() {
+  const cat = this.value;
+  populateTactics(cat);
+});
+
+// Populate tactic buttons for a category
+function populateTactics(category) {
+  tacticButtons.innerHTML = "";
+  container.innerHTML = "";
+
+  if (!category || !tacticsData[category]) return;
+
+  let firstBtn = null;
+
+  tacticsData[category].forEach((tactic, index) => {
+    const btn = document.createElement("button");
+    btn.textContent = tactic.name;
+
+    btn.addEventListener("click", () => {
+      // Remove active class from all buttons
+      tacticButtons.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      loadTactic(tactic.file);
+    });
+
+    tacticButtons.appendChild(btn);
+
+    // Save first button
+    if (index === 0) firstBtn = btn;
+  });
+
+  // Automatically select the first tactic
+  if (firstBtn) {
+    firstBtn.classList.add("active");
+    loadTactic(tacticsData[category][0].file);
+  }
+}
+
+// Load tactic into iframe
+function loadTactic(file) {
+  container.innerHTML = "";
+  const iframe = document.createElement("iframe");
+  iframe.src = file;
+  iframe.width = "100%";
+  iframe.style.border = "0";
+  iframe.style.overflow = "hidden";
+
+  iframe.onload = function() {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      iframe.style.height = doc.documentElement.scrollHeight + "px";
+    } catch (e) {
+      iframe.style.height = "600px";
+      console.warn("Cannot auto-resize iframe due to cross-origin policy.");
+    }
+  };
+
+  container.appendChild(iframe);
+}
+
+</script>
+  </body>
+</html>
