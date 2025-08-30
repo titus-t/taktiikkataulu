@@ -1,59 +1,70 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Taktiikkataulu</title>
-  <!--
-    Tämä versio toteuttaa pyydetyt muutokset:
-    1) Polun piirron lopetus VÄLILYÖNNILLÄ (Space) – ei tuplaklikkausta.
-    2) Kenttä piirtyy sisään → maalin taakse jää tilaa piirtää.
-    3) Maali alkaa samasta x-koordinaatista kuin maalialue (crease) → maali pysyy sen sisällä.
-    4) 5v5-asettelun drag-ongelma korjattu (Group.x/y = pelaajan sijainti, sisäiset objektit keskellä).
-    5) Maalivahti poistettu 5v5-asettelusta.
-    6) Pelaajamerkinnät: VL, KH, OL, VP, OP. Asettelu kuten jääkiekossa.
-    7) CSS on erillisessä tiedostossa: tyyli.css
-  -->
+ 
   <link rel="stylesheet" href="tyyli.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
 </head>
 
 <nav class="topnav" id="myTopnav"> 
-        
-
-    <a href="index.html" class="nav-link">Koti</a> 
-
-    <a href="tacticalboard.html" class="nav-link">Taktiikkataulu</a>
-
-    <a href="hinnasto.html" class="nav-link">Hinnasto & Aukioloajat</a> 
-
-    <a href="galleria.html" class="nav-link">Galleria</a> 
-
-    <a href="yhteystiedot.html" class="nav-link">Yhteystiedot</a> 
-
-    <a href="javascript:void(0);" class="icon" onclick="myFunction()"> 
-
-      <i class="fa fa-bars"></i> 
-
-    </a> 
-
+  <a href="index.html" class="nav-link">Koti</a> 
+  <a href="tacticalboard.html" class="nav-link">Taktiikkataulu</a>
+  <a href="hinnasto.html" class="nav-link">Hinnasto & Aukioloajat</a> 
+  <a href="galleria.html" class="nav-link">Galleria</a> 
+  <a href="yhteystiedot.html" class="nav-link">Yhteystiedot</a> 
+  <a href="javascript:void(0);" class="icon" onclick="myFunction()"><i class="fa fa-bars"></i></a> 
 </nav> 
 
 <body>
   <header>
     <div class="toolbar">
-      <h1>Salibandyn taktiikkataulu</h1>
-      <button id="selectModeBtn" title="Valitse/siirrä (V)">Valitse</button>
-      <button id="pathModeBtn" title="Piirrä liikerata (P)">Polku</button>
-      <button id="ballModeBtn" title="Lisää/siirrä pallo (B)">Pallo</button>
-      <button id="animateBtn" title="Animoi valitut (A)">Animoi</button>
+      <h1>Taktiikkataulu</h1>
+
+      <!-- Tilat -->
+      <button id="selectModeBtn"    title="Valitse/siirrä (V)">Valitse</button>
+      <button id="moveLineModeBtn"  title="Pelaajan ja pallon liike piirtää viivan (M)">Pelaajan ja pallon liike + viiva</button>
+
+      <div class="btn-group" id="lineGroup" style="display:inline-flex;gap:.35rem;align-items:center;">
+        <button id="addLineBtn" title="Lisää viiva (P)">Lisää viiva</button>
+        <button id="lineSolidBtn"  aria-pressed="true"  title="Viivatyyli: Suora">Suora</button>
+        <button id="lineDashedBtn" aria-pressed="false" title="Viivatyyli: Katkoviiva">Katkoviiva</button>
+      </div>
+
+      <button id="ballModeBtn"   title="Lisää/siirrä pallo (B)">Pallo</button>
+      <button id="undoBtn"       title="Peru viimeisin viiva (Ctrl+Z)">Undo</button>
+      <button id="clearBtn"      title="Tyhjennä kaikki">Tyhjennä</button>
+
       <span class="spacer"></span>
-      <button id="addTeamsBtn" title="Lisää kaksi 5 pelaajan joukkuetta (ilman mv)">Lisää 5v5</button>
-      <button id="clearBtn" title="Tyhjennä kenttä">Tyhjennä</button>
-      <button id="saveBtn" title="Lataa JSON">Tallenna</button>
-      <label class="file-btn" for="loadInput" title="Lataa JSON">Lataa <input id="loadInput" type="file" accept="application/json" hidden /></label>
-      <span class="badge">Beta-pohja</span>
+
+      <!-- Viivan väri (yksi paletti kaikkeen) -->
+      <div class="palette" id="globalPalette">
+        Viivan väri:
+        <div class="color vcolor" data-color="#5ec8ff" style="background:#5ec8ff"></div>
+        <div class="color vcolor" data-color="#ff7aa2" style="background:#ff7aa2"></div>
+        <div class="color vcolor" data-color="#9aff7a" style="background:#9aff7a"></div>
+        <div class="color vcolor" data-color="#ffd36d" style="background:#ffd36d"></div>
+        <div class="color vcolor" data-color="#ffffff" style="background:#ffffff"></div>
+      </div>
+
+      <span class="spacer"></span>
+
+      <!-- Pelaajat-valikko (siisti & minimalistinen) -->
+      <details id="playersMenu">
+        <summary style="cursor:pointer">Pelaajat</summary>
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap; padding:.4rem 0 .2rem;">
+          <button id="addTeamsBtn"   title="Lisää 5v5 (kunnioittaa max 6/tiimi)">Lisää 5v5</button>
+          <button id="addBlue5Btn"   title="Lisää 5 pelaajaa (siniset)">+5 sininen</button>
+          <button id="addBlue3Btn"   title="Lisää 3 pelaajaa (siniset)">+3 sininen</button>
+          <button id="addBlue1Btn"   title="Lisää 1 sininen">+1 sininen</button>
+          <button id="removeBlue1Btn" title="Poista 1 sininen">-1 sininen</button>
+          <button id="addPink1Btn"   title="Lisää 1 pinkki">+1 pinkki</button>
+          <button id="removePink1Btn" title="Poista 1 pinkki">-1 pinkki</button>
+        </div>
+      </details>
+
+      <!-- Aloitusformaatiot POISTETTU KÄYTÖSTÄ -->
     </div>
   </header>
 
@@ -61,78 +72,83 @@
     <section id="board-wrap">
       <div id="container"></div>
       <p class="hint">
-        Vihjeet: <strong>Polku</strong>-tilassa klikkaa kenttää lisätäksesi pisteitä; paina
-        <kbd>VÄLILYÖNTI</kbd> lopettaaksesi polun. Klikkaa pelaajaa valitaksesi sen.
-        Paina <strong>Animoi</strong> siirtääksesi valitut pelaajat valituille radoille.
-        Näppäimet: <kbd>V</kbd> Valitse, <kbd>P</kbd> Polku, <kbd>B</kbd> Pallo, <kbd>Del</kbd> Poista.
+        Tilat: <strong>Valitse</strong> = siirrä pelaajia ja palloa, <strong>Pelaajan ja pallon liike + viiva</strong> = drag luo kaartuvan viivan,
+        <strong>Lisää viiva</strong> = piirrä viivoja klikkaamalla. Pallo piirtää aina valkoisen viivan.
+        <br/>Näppäimet: <kbd>V</kbd> Valitse, <kbd>M</kbd> Pelaajan & pallon liike, <kbd>P</kbd> Lisää viiva, <kbd>B</kbd> Pallo, 
+        <kbd>Space</kbd> päätä viiva, <kbd>Del</kbd> poista valitut, <kbd>Ctrl+Z</kbd> Undo.
       </p>
-      <div class="palette">
-        Pelaajien väri:
-        <div class="color" data-color="#5ec8ff" style="background:#5ec8ff"></div>
-        <div class="color" data-color="#ff7aa2" style="background:#ff7aa2"></div>
-        <div class="color" data-color="#9aff7a" style="background:#9aff7a"></div>
-        <div class="color" data-color="#ffd36d" style="background:#ffd36d"></div>
-      </div>
     </section>
-    <footer>
-      Tehty <a href="https://konvajs.org/" target="_blank" rel="noreferrer">Konva.js</a>-kirjastolla. Muokkaa vapaasti (undo/redo, vaiheet, vienti yms.).
-    </footer>
   </main>
 
   <!-- Konva.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/konva@9.3.13/konva.min.js"></script>
   <script>
   // ------------------------------
-  // ASETUKSET JA TILA
+  // ASETUKSET
   // ------------------------------
-  const BOARD_W = 1100; // koko koordinaatistolle (laajempi kuin varsinainen kenttä)
+  const BOARD_W = 1100;
   const BOARD_H = 560;
-
-  // Kenttä piirretään sisemmäksi → maalin taakse jää tilaa
-  const FIELD_MARGIN_X = 70;  // vasen/oikea marginaali
-  const FIELD_MARGIN_Y = 30;  // ylä/ala marginaali
+  const FIELD_MARGIN_X = 70;
+  const FIELD_MARGIN_Y = 30;
   const FIELD_W = BOARD_W - FIELD_MARGIN_X * 2;
   const FIELD_H = BOARD_H - FIELD_MARGIN_Y * 2;
+  const GOAL_BACKSPACE = 50; // px
 
-  // Tila
-  let mode = 'select'; // 'select' | 'path' | 'ball'
+  // Mitat
+  const goalW = 25, goalH = 35;
+  const creaseW = 70, creaseH = 80;
+
+  const TEAM_BLUE_COLOR = '#5ec8ff';
+  const TEAM_PINK_COLOR = '#ff7aa2';
+  const MAX_PER_TEAM = 6;
+
+  // ------------------------------
+  // TILA
+  // ------------------------------
+  let mode = 'select'; // 'select' | 'move-line' | 'path' | 'ball'
   let currentColor = '#5ec8ff';
-  let paths = [];   // {node:Konva.Arrow, points:number[]}
-  let players = []; // {node:Konva.Group, team:string, role:string}
+  let lineType = 'solid'; // 'solid' | 'dashed'
+
+  let paths = [];   // {node, points:number[], dashed:boolean, color:string}
+  let players = []; // {node, team:'blue'|'pink', role:string}
   let selected = new Set();
   let ball = null;
 
-  // Konva Stage & Layerit
+  const playerColors = new Map(); // key: player.node._id -> color
+
+  // manuaaliviiva
+  let drawingArrow = null;
+
+  // drag-viivat
+  // (huom. pelaajilla käytetään paikallisia muuttujia handlerissa)
+  let bStart=null, bTemp=null; // pallon väliaikainen
+  // ------------------------------
+  // STAGE & LAYERIT
+  // ------------------------------
   const container = document.getElementById('container');
   const stage = new Konva.Stage({ container: 'container', width: BOARD_W, height: BOARD_H });
   const fieldLayer = new Konva.Layer();
-  const pathLayer = new Konva.Layer();
-  const playerLayer = new Konva.Layer();
+  const pathLayer  = new Konva.Layer();
+  const playerLayer= new Konva.Layer();
   stage.add(fieldLayer, pathLayer, playerLayer);
 
   // ------------------------------
-  // KENTÄN PIIRTO
+  // KENTTÄ JA KULMAPISTEET
   // ------------------------------
+  let leftGoalBackX, rightGoalBackX, topY, botY; // talteen
+
   function drawField(){
     fieldLayer.destroyChildren();
-
-    // Tausta-alue (koko canvas) – tummempi
     fieldLayer.add(new Konva.Rect({ x:0, y:0, width:BOARD_W, height:BOARD_H, fill:'#0b1f22' }));
 
-    // Varsinainen kenttä sisemmäs
-    const field = new Konva.Rect({
-      x: FIELD_MARGIN_X,
-      y: FIELD_MARGIN_Y,
-      width: FIELD_W,
-      height: FIELD_H,
-      cornerRadius: 30,
-      fill: '#0a2430',
-      stroke: '#7fd7ff33',
-      strokeWidth: 2,
+    const cornerR = 30;
+    const fieldRect = new Konva.Rect({
+      x: FIELD_MARGIN_X, y: FIELD_MARGIN_Y, width: FIELD_W, height: FIELD_H,
+      cornerRadius: cornerR, fill: '#0a2430', stroke: '#7fd7ff33', strokeWidth: 2,
     });
-    fieldLayer.add(field);
+    fieldLayer.add(fieldRect);
 
-    // Keskiviiva ja keskiympyrä
+    // Keskiviiva & keskiympyrä
     fieldLayer.add(new Konva.Line({
       points: [FIELD_MARGIN_X + FIELD_W/2, FIELD_MARGIN_Y + 10, FIELD_MARGIN_X + FIELD_W/2, FIELD_MARGIN_Y + FIELD_H - 10],
       stroke: '#79d2ff55', dash: [8,8]
@@ -140,82 +156,73 @@
     fieldLayer.add(new Konva.Circle({ x: FIELD_MARGIN_X + FIELD_W/2, y: FIELD_MARGIN_Y + FIELD_H/2, radius: 38, stroke: '#79d2ff66' }));
     fieldLayer.add(new Konva.Circle({ x: FIELD_MARGIN_X + FIELD_W/2, y: FIELD_MARGIN_Y + FIELD_H/2, radius: 2, fill: '#79d2ffcc' }));
 
-    // Maalialueet (isot neliöt)
-    const creaseInset = 10;
-    const creaseW = 90, creaseH = 60;
-    const leftCreaseX  = FIELD_MARGIN_X + creaseInset;
-    const rightCreaseX = FIELD_MARGIN_X + FIELD_W - creaseInset - creaseW;
+    // Maalialueet
+    const leftCreaseX  = FIELD_MARGIN_X + GOAL_BACKSPACE;
+    const rightCreaseX = FIELD_MARGIN_X + FIELD_W - GOAL_BACKSPACE - creaseW;
     const creaseY = FIELD_MARGIN_Y + FIELD_H/2 - creaseH/2;
 
     fieldLayer.add(new Konva.Rect({ x:leftCreaseX,  y:creaseY, width:creaseW, height:creaseH, stroke:'#79d2ff66' }));
     fieldLayer.add(new Konva.Rect({ x:rightCreaseX, y:creaseY, width:creaseW, height:creaseH, stroke:'#79d2ff66' }));
 
-    // Maalit (punaiset neliöt) – alkavat samasta x:stä kuin crease → maali pysyy sisällä
-    const goalW = 20, goalH = 40;
+    // Maalit
     const leftGoalX  = leftCreaseX;
-    const rightGoalX = rightCreaseX + creaseW - goalW; // oikealla maali "sisäreunasta" sisään
+    const rightGoalX = rightCreaseX + creaseW - goalW;
     const goalY = FIELD_MARGIN_Y + FIELD_H/2 - goalH/2;
 
     fieldLayer.add(new Konva.Rect({ x:leftGoalX,  y:goalY, width:goalW, height:goalH, stroke:'#ff8aa3aa' }));
     fieldLayer.add(new Konva.Rect({ x:rightGoalX, y:goalY, width:goalW, height:goalH, stroke:'#ff8aa3aa' }));
+
+    // Kulmapisteet:
+    // aiemmin 15px "lähemmäs maalia" X-suunnassa tehtiin; nyt siirretään Y-suuntaan:
+    // ylhäällä olevat ALEMMAS, alhaalla olevat YLEMmÄS -> kasvatetaan top-offsetiä ja pienennetään bottom-offsetiä
+    leftGoalBackX  = leftGoalX + 15;
+    rightGoalBackX = rightGoalX + goalW - 15;
+    const DOT_OFFSET_Y = 30; // aiemmin ~18 → siirretty kohti keskikaistaa
+    topY  = FIELD_MARGIN_Y + DOT_OFFSET_Y;
+    botY  = FIELD_MARGIN_Y + FIELD_H - DOT_OFFSET_Y;
+    const dotR = 3;
+
+    fieldLayer.add(new Konva.Circle({ x:leftGoalBackX,  y:topY, radius:dotR, fill:'#79d2ff88' }));
+    fieldLayer.add(new Konva.Circle({ x:leftGoalBackX,  y:botY, radius:dotR, fill:'#79d2ff88' }));
+    fieldLayer.add(new Konva.Circle({ x:rightGoalBackX, y:topY, radius:dotR, fill:'#79d2ff88' }));
+    fieldLayer.add(new Konva.Circle({ x:rightGoalBackX, y:botY, radius:dotR, fill:'#79d2ff88' }));
 
     fieldLayer.draw();
   }
   drawField();
 
   // ------------------------------
-  // APUFUNKTIOT – PELAAJAT, PALLO, VALINNAT
+  // APUJA
   // ------------------------------
-  function createPlayer(x,y,color,label){
-    // Circle/Text keskitetty (0,0), Group on (x,y) → drag toimii oikein
-    const radius = 14;
-    const circle = new Konva.Circle({ x:0, y:0, radius, fill:color, stroke:'#00000055', strokeWidth:2, shadowColor:'#000', shadowBlur:6, shadowOpacity:.25 });
-    const text = new Konva.Text({ x:-12, y:-8, text:label||'', fontSize:14, fontStyle:'700', fill:'#00131a' });
-
-    const group = new Konva.Group({ x, y, draggable:true });
-    group.add(circle, text);
-    group.cache();
-
-    // Rajaa drag koko canvas-alueelle (jotta voi liikkua myös kentän ulkopuolella/maalin takana)
-    group.on('dragmove', () => { constrainToCanvas(group, radius); playerLayer.batchDraw(); });
-
-    group.on('mousedown', (e)=>{
-      if (mode !== 'select') return;
-      const multi = e.evt.shiftKey || e.evt.metaKey || e.evt.ctrlKey;
-      if (!multi) { clearSelection(); }
-      toggleSelection(group);
-    });
-
-    group.toObject = () => ({ x: group.x(), y: group.y(), color, label });
-
-    playerLayer.add(group);
-    players.push({ node: group, team: color, role: label || '' });
-    return group;
-  }
-
-  function createBall(x,y){
-    const node = new Konva.Circle({ x, y, radius:6, fill:'#ffe38d', stroke:'#00000066', strokeWidth:1.5, draggable:true });
-    node.on('dragmove', ()=>{ constrainToCanvas(node, 6); playerLayer.batchDraw(); });
-    node.on('mousedown', (e)=>{ if (mode==='select'){ clearSelection(); toggleSelection(node);} });
-    playerLayer.add(node);
-    return node;
-  }
-
-  function constrainToCanvas(node, padding){
-    const nx = Math.min(BOARD_W - padding, Math.max(padding, node.x()));
-    const ny = Math.min(BOARD_H - padding, Math.max(padding, node.y()));
-    node.position({x:nx, y:ny});
+  function constrainToField(node, padding){
+    const fx = FIELD_MARGIN_X, fy = FIELD_MARGIN_Y, fw = FIELD_W, fh = FIELD_H;
+    const r = 30; // kulman säde
+    let nx = Math.min(fx + fw - padding, Math.max(fx + padding, node.x()));
+    let ny = Math.min(fy + fh - padding, Math.max(fy + padding, node.y()));
+    const cx1 = fx + r + padding, cy1 = fy + r + padding;
+    const cx2 = fx + fw - r - padding, cy2 = fy + r + padding;
+    const cx3 = fx + r + padding, cy3 = fy + fh - r - padding;
+    const cx4 = fx + fw - r - padding, cy4 = fy + fh - r - padding;
+    const rad = Math.max(0, r - padding);
+    function clampToCorner(cx, cy){
+      const dx = nx - cx, dy = ny - cy;
+      const dist = Math.hypot(dx, dy);
+      if (dist <= rad) return;
+      const k = rad / (dist || 1);
+      nx = cx + dx * k; ny = cy + dy * k;
+    }
+    if (nx < fx + r + padding && ny < fy + r + padding) clampToCorner(cx1, cy1);
+    if (nx > fx + fw - r - padding && ny < fy + r + padding) clampToCorner(cx2, cy2);
+    if (nx < fx + r + padding && ny > fy + fh - r - padding) clampToCorner(cx3, cy3);
+    if (nx > fx + fw - r - padding && ny > fy + fh - r - padding) clampToCorner(cx4, cy4);
+    node.position({ x:nx, y:ny });
   }
 
   function toggleSelection(node){
     const key = node._id;
-    if (selected.has(key)){
-      selected.delete(key);
-      setSelectedStyle(node,false);
-    }else{
-      selected.add(key);
-      setSelectedStyle(node,true);
-    }
+    if (selected.has(key)){ selected.delete(key); setSelectedStyle(node,false); }
+    else { selected.add(key); setSelectedStyle(node,true); }
+    updatePaletteHighlights();
   }
 
   function setSelectedStyle(node, on){
@@ -234,241 +241,319 @@
     if (ball) setSelectedStyle(ball, false);
     paths.forEach(p => setSelectedStyle(p.node,false));
     selected.clear();
+    updatePaletteHighlights();
   }
 
-  function nearestPathPoint(points, x, y){
-    let bestI = 0; let bestD = Infinity;
-    for (let i=0;i<points.length;i+=2){
-      const dx = points[i]-x, dy = points[i+1]-y; const d = dx*dx+dy*dy;
-      if (d<bestD){bestD=d;bestI=i;}
-    }
-    return bestI;
+  // Korosta väripaletti
+  function updatePaletteHighlights(){
+    const tiles = document.querySelectorAll('.vcolor');
+    tiles.forEach(t => { t.style.outline=''; t.style.boxShadow=''; t.removeAttribute('data-active'); });
+    const activeTile = document.querySelector(`.vcolor[data-color="${currentColor}"]`);
+    if (activeTile){ activeTile.style.outline='3px solid rgba(255,255,255,.7)'; activeTile.setAttribute('data-active','1'); }
+
+    const selPlayers = players.filter(p => selected.has(p.node._id));
+    const selPaths = paths.filter(p => selected.has(p.node._id));
+    new Set(selPlayers.map(p => playerColors.get(p.node._id) || currentColor)).forEach(col=>{
+      const tile = document.querySelector(`.vcolor[data-color="${col}"]`);
+      if (tile){ tile.style.boxShadow='0 0 0 3px rgba(0,0,0,.35), 0 0 0 6px rgba(0,200,255,.6)'; }
+    });
+    new Set(selPaths.map(p=>p.color)).forEach(col=>{
+      const tile = document.querySelector(`.vcolor[data-color="${col}"]`);
+      if (tile && !tile.getAttribute('data-active')){ tile.style.boxShadow='0 0 0 2px rgba(255,255,255,.5)'; }
+    });
+  }
+
+  function updateDraggability(){
+    const canDragPlayers = (mode==='select' || mode==='move-line');
+    players.forEach(p => p.node.draggable(canDragPlayers));
+    if (ball) ball.draggable(mode==='select' || mode==='move-line'); // pallo liikkuu myös Valitse-tilassa
   }
 
   // ------------------------------
-  // POLUN PIIRTO
+  // PELAAJAN & PALLON LUONTI
   // ------------------------------
-  let drawingArrow = null;
+  function createPlayer(x,y,team,label){
+    const radius = 14;
+    const fill = team==='blue' ? TEAM_BLUE_COLOR : TEAM_PINK_COLOR;
+    const circle = new Konva.Circle({ x:0, y:0, radius, fill, stroke:'#00000055', strokeWidth:2 });
+    const text   = new Konva.Text({ x:-12, y:-8, text:label||'', fontSize:14, fontStyle:'700', fill:'#00131a' });
+    const group  = new Konva.Group({ x, y, draggable: (mode==='select' || mode==='move-line') });
+    group.add(circle, text); group.cache();
+    playerColors.set(group._id, fill);
+
+    // Pelaajan drag-viiva vain move-line -tilassa
+    let localStart=null, localTemp=null;
+    group.on('dragstart', ()=>{
+      if (mode!=='move-line'){ localTemp=null; localStart=null; return; }
+      localStart = { x: group.x(), y: group.y() };
+      const col = playerColors.get(group._id) || currentColor;
+      localTemp = new Konva.Arrow({
+        points:[localStart.x, localStart.y, localStart.x, localStart.y],
+        stroke: col, fill: col, strokeWidth:3, pointerLength:10, pointerWidth:10,
+        lineCap:'round', lineJoin:'round', tension:0.35, dash: (lineType==='dashed')?[12,8]:[]
+      });
+      pathLayer.add(localTemp);
+    });
+    group.on('dragmove', ()=>{
+      constrainToField(group, radius);
+      if (mode==='move-line' && localTemp && localStart){
+        const x1=localStart.x, y1=localStart.y, x2=group.x(), y2=group.y();
+        localTemp.points([x1,y1,(x1+x2)/2,(y1+y2)/2,x2,y2]);
+        pathLayer.batchDraw();
+      }
+      playerLayer.batchDraw();
+    });
+    group.on('dragend', ()=>{
+      constrainToField(group, radius);
+      if (mode==='move-line' && localStart){
+        const x1=localStart.x, y1=localStart.y, x2=group.x(), y2=group.y();
+        const col = playerColors.get(group._id) || currentColor;
+        const arrow = new Konva.Arrow({
+          points:[x1,y1,(x1+x2)/2,(y1+y2)/2,x2,y2],
+          stroke: col, fill: col, strokeWidth:3, pointerLength:10, pointerWidth:10,
+          lineCap:'round', lineJoin:'round', tension:0.35, dash:(lineType==='dashed')?[12,8]:[]
+        });
+        arrow.on('mousedown',(e)=>{ if(mode==='select'){ const multi=e.evt.shiftKey||e.evt.ctrlKey||e.evt.metaKey; if(!multi) clearSelection(); toggleSelection(arrow);} });
+        pathLayer.add(arrow);
+        paths.push({ node:arrow, points:arrow.points().slice(), dashed:(lineType==='dashed'), color:col });
+        if (localTemp){ localTemp.destroy(); localTemp=null; }
+        localStart=null; pathLayer.draw();
+      } else { if (localTemp){ localTemp.destroy(); localTemp=null; pathLayer.draw(); } }
+    });
+
+    group.on('mousedown',(e)=>{ if(mode==='select'){ const multi=e.evt.shiftKey||e.evt.ctrlKey||e.evt.metaKey; if(!multi) clearSelection(); toggleSelection(group); } });
+
+    playerLayer.add(group);
+    players.push({ node: group, team, role: label||'' });
+    return group;
+  }
+
+  function createBall(x,y){
+    const node = new Konva.Circle({ x, y, radius:6, fill:'#ffe38d', stroke:'#00000066', strokeWidth:1.5, draggable: (mode==='select'||mode==='move-line') });
+    node.on('dragstart', ()=>{
+      if (mode!=='move-line'){ bTemp=null; bStart=null; return; }
+      bStart = { x: node.x(), y: node.y() };
+      bTemp = new Konva.Arrow({
+        points:[bStart.x,bStart.y,bStart.x,bStart.y],
+        stroke:'#ffffff', fill:'#ffffff', strokeWidth:3, pointerLength:10, pointerWidth:10,
+        lineCap:'round', lineJoin:'round', tension:0.35, dash:(lineType==='dashed')?[12,8]:[]
+      });
+      pathLayer.add(bTemp);
+    });
+    node.on('dragmove', ()=>{
+      constrainToField(node, 6);
+      if (mode==='move-line' && bTemp && bStart){
+        const x1=bStart.x,y1=bStart.y,x2=node.x(),y2=node.y();
+        bTemp.points([x1,y1,(x1+x2)/2,(y1+y2)/2,x2,y2]);
+        pathLayer.batchDraw();
+      }
+      playerLayer.batchDraw();
+    });
+    node.on('dragend', ()=>{
+      constrainToField(node, 6);
+      if (mode==='move-line' && bStart){
+        const x1=bStart.x,y1=bStart.y,x2=node.x(),y2=node.y();
+        const arrow = new Konva.Arrow({
+          points:[x1,y1,(x1+x2)/2,(y1+y2)/2,x2,y2],
+          stroke:'#ffffff', fill:'#ffffff', strokeWidth:3, pointerLength:10, pointerWidth:10,
+          lineCap:'round', lineJoin:'round', tension:0.35, dash:(lineType==='dashed')?[12,8]:[]
+        });
+        arrow.on('mousedown',(e)=>{ if(mode==='select'){ const multi=e.evt.shiftKey||e.evt.ctrlKey||e.evt.metaKey; if(!multi) clearSelection(); toggleSelection(arrow);} });
+        pathLayer.add(arrow);
+        paths.push({ node:arrow, points:arrow.points().slice(), dashed:(lineType==='dashed'), color:'#ffffff' });
+        if (bTemp){ bTemp.destroy(); bTemp=null; }
+        bStart=null; pathLayer.draw();
+      } else { if (bTemp){ bTemp.destroy(); bTemp=null; pathLayer.draw(); } }
+    });
+    node.on('mousedown',(e)=>{ if(mode==='select'){ clearSelection(); toggleSelection(node);} });
+    playerLayer.add(node); return node;
+  }
+
+  // ------------------------------
+  // MANUAALINEN VIIVA
+  // ------------------------------
   function startPath(x,y){
     drawingArrow = new Konva.Arrow({
-      points:[x,y],
-      stroke: currentColor, fill: currentColor, strokeWidth:3,
-      pointerLength:10, pointerWidth:10, lineCap:'round', lineJoin:'round', tension:0.2
+      points:[x,y], stroke:currentColor, fill:currentColor, strokeWidth:3,
+      pointerLength:10, pointerWidth:10, lineCap:'round', lineJoin:'round', tension:0.2,
+      dash:(lineType==='dashed')?[12,8]:[]
     });
     pathLayer.add(drawingArrow);
   }
   function addPointToPath(x,y){
     if (!drawingArrow) return;
-    const pts = drawingArrow.points();
-    pts.push(x,y);
-    drawingArrow.points(pts);
-    pathLayer.batchDraw();
+    const pts=drawingArrow.points(); pts.push(x,y);
+    drawingArrow.points(pts); pathLayer.batchDraw();
   }
   function finishPath(){
     if (!drawingArrow) return;
-    const pts = drawingArrow.points();
-    if (pts.length < 4){ drawingArrow.destroy(); drawingArrow=null; pathLayer.draw(); return; }
-    const node = drawingArrow;
-    node.on('mousedown', (e)=>{
-      if (mode==='select'){
-        const multi = e.evt.shiftKey||e.evt.ctrlKey||e.evt.metaKey;
-        if(!multi) clearSelection();
-        toggleSelection(node);
-      }
-    });
-    paths.push({ node, points: pts.slice() });
-    drawingArrow = null;
-    pathLayer.draw();
+    const pts=drawingArrow.points();
+    if (pts.length<4){ drawingArrow.destroy(); drawingArrow=null; pathLayer.draw(); return; }
+    const node=drawingArrow;
+    node.on('mousedown',(e)=>{ if(mode==='select'){ const multi=e.evt.shiftKey||e.evt.ctrlKey||e.evt.metaKey; if(!multi) clearSelection(); toggleSelection(node);} });
+    paths.push({ node, points:pts.slice(), dashed:(lineType==='dashed'), color:currentColor });
+    drawingArrow=null; pathLayer.draw();
   }
 
   // ------------------------------
-  // ANIMAATIO – pelaajat pitkin polkuja
+  // UNDO / CLEAR
   // ------------------------------
-  async function animateSelection(){
-    const selPlayers = players.filter(p=> selected.has(p.node._id));
-    const selPaths = paths.filter(p=> selected.has(p.node._id));
-    if (selPlayers.length===0 || selPaths.length===0){
-      flashHint('Valitse ainakin yksi pelaaja ja yksi polku. (Vinkki: Shift monivalintaan)');
-      return;
-    }
-    for (const p of selPlayers){
-      const sx = p.node.x(), sy = p.node.y();
-      let best = selPaths[0]; let bestDist = Infinity;
-      for (const path of selPaths){
-        const idx = nearestPathPoint(path.points, sx, sy);
-        const dx = path.points[idx]-sx, dy = path.points[idx+1]-sy;
-        const d = dx*dx+dy*dy; if (d<bestDist){bestDist=d;best=path;}
-      }
-      await animateAlong(p.node, best.points);
-    }
-  }
-
-  function animateAlong(node, points){
-    return new Promise(async resolve =>{
-      const speed = 220; // px/s
-      for (let i=0;i<points.length-2;i+=2){
-        const x1 = i===0 ? node.x() : points[i];
-        const y1 = i===0 ? node.y() : points[i+1];
-        const x2 = points[i+2];
-        const y2 = points[i+3];
-        const dist = Math.hypot(x2-x1, y2-y1);
-        const dur = dist / speed;
-        await tweenTo(node, { x:x2, y:y2 }, dur);
-      }
-      node.draw();
-      resolve();
-    });
-  }
-
-  function tweenTo(node, props, duration){
-    return new Promise(res=>{
-      const tw = new Konva.Tween({ node, duration: Math.max(.1, duration), ...props, onFinish: ()=>{ tw.destroy(); res(); } });
-      tw.play();
-    });
-  }
-
-  // ------------------------------
-  // TALLENNUS / LATAUS
-  // ------------------------------
-  function exportJSON(){
-    const data = {
-      players: players.map(p=>({ x: p.node.x(), y: p.node.y(), color: p.team, label: p.role })),
-      ball: ball ? { x: ball.x(), y: ball.y() } : null,
-      paths: paths.map(p=>({ points: p.points, color: p.node.stroke() }))
-    };
-    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'salibandy_taktiikat.json'; a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function importJSON(file){
-    const reader = new FileReader();
-    reader.onload = (e)=>{
-      const data = JSON.parse(e.target.result);
-      clearAll();
-      if (data.players){ data.players.forEach(p=> createPlayer(p.x, p.y, p.color, p.label)); }
-      if (data.ball){ ball = createBall(data.ball.x, data.ball.y); }
-      if (data.paths){
-        data.paths.forEach(p=>{
-          const arr = new Konva.Arrow({
-            points: p.points, stroke: p.color || '#5ec8ff', fill: p.color || '#5ec8ff',
-            strokeWidth:3, pointerLength:10, pointerWidth:10, lineCap:'round', lineJoin:'round', tension:0.2
-          });
-          arr.on('mousedown', (e)=>{ if (mode==='select'){ const multi = e.evt.shiftKey||e.evt.ctrlKey||e.evt.metaKey; if(!multi) clearSelection(); toggleSelection(arr);} });
-          pathLayer.add(arr);
-          paths.push({ node: arr, points: p.points.slice() });
-        });
-      }
-      redrawAll();
-    };
-    reader.readAsText(file);
-  }
-
+  function undoLastPath(){ const last=paths.pop(); if(last){ last.node.destroy(); pathLayer.draw(); } }
   function clearAll(){
     clearSelection();
     players.forEach(p=> p.node.destroy()); players=[];
     paths.forEach(p=> p.node.destroy()); paths=[];
+    pathLayer.destroyChildren(); pathLayer.draw();
     if (ball){ ball.destroy(); ball=null; }
     redrawAll();
   }
-
   function redrawAll(){ pathLayer.draw(); playerLayer.draw(); }
 
-  function flashHint(msg){
-    const el = document.createElement('div');
-    el.textContent = msg; el.className = 'toast';
-    document.body.appendChild(el);
-    setTimeout(()=>{ el.remove(); }, 2600);
+  // ------------------------------
+  // TIIMIT JA ASETTELU
+  // ------------------------------
+  function countTeam(team){ return players.filter(p=>p.team===team).length; }
+  function roleForIndex(i){ const roles=['VP','OP','VL','KH','OL','X']; return roles[Math.min(i,roles.length-1)]; }
+
+  function nextBluePos(){
+    const midY = FIELD_MARGIN_Y + FIELD_H/2;
+    const xF = FIELD_MARGIN_X + 400, xD = FIELD_MARGIN_X + 280;
+    const idx = countTeam('blue');
+    const grid = [
+      {x:xD, y:midY-60}, {x:xD, y:midY+60},
+      {x:xF, y:midY-90}, {x:xF+60, y:midY}, {x:xF, y:midY+90},
+      {x:xF+40, y:midY-140}
+    ];
+    return grid[Math.min(idx, grid.length-1)];
+  }
+  function nextPinkPos(){
+    const midY = FIELD_MARGIN_Y + FIELD_H/2;
+    const xF = FIELD_MARGIN_X + FIELD_W - 400, xD = FIELD_MARGIN_X + FIELD_W - 280;
+    const idx = countTeam('pink');
+    const grid = [
+      {x:xD, y:midY-60}, {x:xD, y:midY+60},
+      {x:xF, y:midY-90}, {x:xF-60, y:midY}, {x:xF, y:midY+90},
+      {x:xF-40, y:midY-140}
+    ];
+    return grid[Math.min(idx, grid.length-1)];
+  }
+
+  function addBlue(n){
+    const can=Math.max(0, MAX_PER_TEAM-countTeam('blue'));
+    if (can<=0){ return; }
+    const add=Math.min(can,n);
+    for(let i=0;i<add;i++){ const pos=nextBluePos(); createPlayer(pos.x,pos.y,'blue', roleForIndex(countTeam('blue'))); }
+    playerLayer.draw();
+  }
+  function addPink(n){
+    const can=Math.max(0, MAX_PER_TEAM-countTeam('pink'));
+    if (can<=0){ return; }
+    const add=Math.min(can,n);
+    for(let i=0;i<add;i++){ const pos=nextPinkPos(); createPlayer(pos.x,pos.y,'pink', roleForIndex(countTeam('pink'))); }
+    playerLayer.draw();
+  }
+  function removeOne(team){
+    const idx=players.findLastIndex(p=>p.team===team);
+    if(idx>=0){ players[idx].node.destroy(); players.splice(idx,1); playerLayer.draw(); }
+  }
+
+  // Alusta vakioksi 5v5 jokaisella sivulatauksella
+  function addStandard5v5(){
+    addBlue(5);
+    addPink(5);
+    // pallo keskiympyrään
+    const cx=FIELD_MARGIN_X+FIELD_W/2, cy=FIELD_MARGIN_Y+FIELD_H/2;
+    if(!ball) ball=createBall(cx,cy); else ball.position({x:cx,y:cy});
+    constrainToField(ball,6); playerLayer.draw();
   }
 
   // ------------------------------
   // TAPAHTUMAT
   // ------------------------------
-  // Kenttäklikkaukset – lisää polun pisteitä tai pallo
-  stage.on('mousedown', (e)=>{
+  // Kenttäklikkaus
+  stage.on('mousedown',(e)=>{
     const pos = stage.getPointerPosition(); if (!pos) return;
-    if (mode==='path'){
+    if (mode==='path'){ // manuaalinen viiva
       if (!drawingArrow) startPath(pos.x, pos.y); else addPointToPath(pos.x, pos.y);
-    } else if (mode==='ball' && !ball){ ball = createBall(pos.x, pos.y); playerLayer.draw(); }
+    } else if (mode==='ball'){ // luo/siirrä pallo
+      if (!ball) ball = createBall(pos.x, pos.y);
+      else { ball.position({x:pos.x, y:pos.y}); constrainToField(ball,6); }
+      playerLayer.draw();
+    }
   });
 
-  // Tuplaklikkausta EI käytetä enää polun päättämiseen
-
-  // Näppäimet
-  window.addEventListener('keydown', (e)=>{
-    if (e.key===' ' && mode==='path'){ e.preventDefault(); finishPath(); } // Space lopettaa polun
+  // Pikanäppäimet
+  window.addEventListener('keydown',(e)=>{
+    if (e.key===' ' && mode==='path'){ e.preventDefault(); finishPath(); }
     if (e.key.toLowerCase()==='v'){ setMode('select'); }
+    if (e.key.toLowerCase()==='m'){ setMode('move-line'); }
     if (e.key.toLowerCase()==='p'){ setMode('path'); }
     if (e.key.toLowerCase()==='b'){ setMode('ball'); }
     if (e.key==='Delete' || e.key==='Backspace'){ deleteSelected(); }
+    if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z'){ e.preventDefault(); undoLastPath(); }
   });
 
   function deleteSelected(){
-    // Poista valitut polut/pelaajat/pallo
     paths = paths.filter(p=>{ if (selected.has(p.node._id)){ p.node.destroy(); return false; } return true; });
     players = players.filter(p=>{ if (selected.has(p.node._id)){ p.node.destroy(); return false; } return true; });
     if (ball && selected.has(ball._id)){ ball.destroy(); ball=null; }
-    selected.clear(); redrawAll();
+    selected.clear(); redrawAll(); updatePaletteHighlights();
   }
 
   function setMode(m){
-    mode = m; clearSelection();
+    mode = m;
+    clearSelection();
     document.getElementById('selectModeBtn').setAttribute('aria-pressed', m==='select');
-    document.getElementById('pathModeBtn').setAttribute('aria-pressed', m==='path');
+    document.getElementById('moveLineModeBtn').setAttribute('aria-pressed', m==='move-line');
+    document.getElementById('addLineBtn').setAttribute('aria-pressed', m==='path');
     document.getElementById('ballModeBtn').setAttribute('aria-pressed', m==='ball');
+    updateDraggability();
   }
   setMode('select');
 
-  // Painikkeet
-  document.getElementById('addTeamsBtn').addEventListener('click', ()=>{
-    // 5v5 ilman mv – roolit: VL, KH, OL, VP, OP
-    // Vasemman puolen joukkue (sininen), muodostus kuten jääkiekossa:
-    const midY = FIELD_MARGIN_Y + FIELD_H/2;
-    const leftX_D = FIELD_MARGIN_X + 220; // puolustajat lähempänä omaa päätyä
-    const leftX_F = FIELD_MARGIN_X + 320; // hyökkääjät edempänä
-
-    // Puolustajat: VP (vasen), OP (oikea)
-    createPlayer(leftX_D, midY-60, '#5ec8ff', 'VP');
-    createPlayer(leftX_D, midY+60, '#5ec8ff', 'OP');
-
-    // Hyökkääjät: VL (vasen laita), KH (keskus), OL (oikea laita)
-    createPlayer(leftX_F, midY-90, '#5ec8ff', 'VL');
-    createPlayer(leftX_F+60, midY,   '#5ec8ff', 'KH');
-    createPlayer(leftX_F, midY+90, '#5ec8ff', 'OL');
-
-    // Oikean puolen joukkue (pinkki), peilataan
-    const rightX_D = FIELD_MARGIN_X + FIELD_W - 220;
-    const rightX_F = FIELD_MARGIN_X + FIELD_W - 320;
-
-    createPlayer(rightX_D, midY-60, '#ff7aa2', 'VP');
-    createPlayer(rightX_D, midY+60, '#ff7aa2', 'OP');
-
-    createPlayer(rightX_F, midY-90, '#ff7aa2', 'VL');
-    createPlayer(rightX_F-60, midY,   '#ff7aa2', 'KH');
-    createPlayer(rightX_F, midY+90, '#ff7aa2', 'OL');
-
-    playerLayer.draw();
-  });
-  document.getElementById('clearBtn').addEventListener('click', clearAll);
-  document.getElementById('saveBtn').addEventListener('click', exportJSON);
-  document.getElementById('loadInput').addEventListener('change', (e)=>{ if (e.target.files && e.target.files[0]) importJSON(e.target.files[0]); e.target.value=''; });
-  document.getElementById('animateBtn').addEventListener('click', animateSelection);
+  // Toolbar & valikko
   document.getElementById('selectModeBtn').addEventListener('click', ()=> setMode('select'));
-  document.getElementById('pathModeBtn').addEventListener('click', ()=> setMode('path'));
+  document.getElementById('moveLineModeBtn').addEventListener('click', ()=> setMode('move-line'));
+  document.getElementById('addLineBtn').addEventListener('click', ()=> setMode('path'));
   document.getElementById('ballModeBtn').addEventListener('click', ()=> setMode('ball'));
+  document.getElementById('undoBtn').addEventListener('click', undoLastPath);
+  document.getElementById('clearBtn').addEventListener('click', clearAll);
 
-  // Väripaletti poluille
-  document.querySelectorAll('.color').forEach(el=>{
-    el.addEventListener('click', ()=>{ currentColor = el.dataset.color; flashHint('Polun väri vaihdettu'); });
+  function updateLineTypeButtons(){
+    document.getElementById('lineSolidBtn').setAttribute('aria-pressed', lineType==='solid');
+    document.getElementById('lineDashedBtn').setAttribute('aria-pressed', lineType==='dashed');
+  }
+  document.getElementById('lineSolidBtn').addEventListener('click', ()=>{ lineType='solid'; updateLineTypeButtons(); });
+  document.getElementById('lineDashedBtn').addEventListener('click', ()=>{ lineType='dashed'; updateLineTypeButtons(); });
+  updateLineTypeButtons();
+
+  document.querySelectorAll('.vcolor').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const col = el.dataset.color;
+      currentColor = col;
+      const selPlayers = players.filter(p => selected.has(p.node._id));
+      if (selPlayers.length>0){ selPlayers.forEach(p => playerColors.set(p.node._id, col)); }
+      updatePaletteHighlights();
+    });
   });
+  updatePaletteHighlights();
 
-  // Oletuspallo keskelle
-  ball = createBall(FIELD_MARGIN_X + FIELD_W/2, FIELD_MARGIN_Y + FIELD_H/2);
-  playerLayer.draw();
+  // Pelaajat-valikko
+  document.getElementById('addTeamsBtn').addEventListener('click', addStandard5v5);
+  document.getElementById('addBlue5Btn').addEventListener('click', ()=> addBlue(5));
+  document.getElementById('addBlue3Btn').addEventListener('click', ()=> addBlue(3));
+  document.getElementById('addBlue1Btn').addEventListener('click', ()=> addBlue(1));
+  document.getElementById('removeBlue1Btn').addEventListener('click', ()=> removeOne('blue'));
+  document.getElementById('addPink1Btn').addEventListener('click', ()=> addPink(1));
+  document.getElementById('removePink1Btn').addEventListener('click', ()=> removeOne('pink'));
 
-  // Responsiivinen skaalaus: säilytä koordinaatisto, skaalaa näkymää
+  // Oletuspallo ja vakioksi 5v5 heti sivun avauduttua
+  const startCx = FIELD_MARGIN_X + FIELD_W/2;
+  const startCy = FIELD_MARGIN_Y + FIELD_H/2;
+  ball = createBall(startCx, startCy);
+  addStandard5v5();
+
+  // Skaalaus
   function fitStageIntoParent(){
     const parent = container.parentElement;
     const scale = Math.min(parent.clientWidth / BOARD_W, 560 / BOARD_H);
@@ -482,64 +567,24 @@
   fitStageIntoParent();
   </script>
 
-  <script> 
-
-    // Responsiivinen valikko 
-
-    function myFunction() { 
-
-        var x = document.getElementById("myTopnav"); 
-
-        if (x.className === "topnav") { 
-
-            x.className += " responsive"; 
-
-        } else { 
-
-            x.className = "topnav"; 
-
-        } 
-
-    } 
-
- 
-
-    // Valikon "active"-luokan lisääminen sen perusteella, mikä sivu on auki 
-
-    window.onload = function() { 
-
-        // Haetaan nykyinen URL-polku 
-
-        var path = window.location.pathname; 
-
-        // Poimitaan nykyinen sivu (esim. "Koti.html") 
-
-        var currentPage = path.substring(path.lastIndexOf("/") + 1); 
-
- 
-
-        // Haetaan kaikki valikon linkit 
-
-        var links = document.querySelectorAll('.nav-link'); 
-
-        links.forEach(function(link) { 
-
-            var href = link.getAttribute('href'); // Hakee linkin href-arvon 
-
-            if (href === currentPage) { 
-
-                link.classList.add('active'); // Lisää "active"-luokan oikealle linkille 
-
-            } else { 
-
-                link.classList.remove('active'); // Poistaa "active"-luokan muilta linkeiltä 
-
-            } 
-
-        }); 
-
-    } 
-
+<script>
+  // Responsiivinen valikko 
+  function myFunction() { 
+    var x = document.getElementById("myTopnav"); 
+    if (x.className === "topnav") { x.className += " responsive"; } 
+    else { x.className = "topnav"; } 
+  } 
+  // "active"-luokka navissa
+  window.onload = function() { 
+    var path = window.location.pathname; 
+    var currentPage = path.substring(path.lastIndexOf("/") + 1); 
+    var links = document.querySelectorAll('.nav-link'); 
+    links.forEach(function(link) { 
+      var href = link.getAttribute('href'); 
+      if (href === currentPage) { link.classList.add('active'); } 
+      else { link.classList.remove('active'); } 
+    }); 
+  } 
 </script> 
 
 </body>
