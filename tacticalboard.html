@@ -8,14 +8,23 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
 </head>
 
-<nav class="topnav" id="myTopnav"> 
-  <a href="index.html" class="nav-link">Koti</a> 
-  <a href="tacticalboard.html" class="nav-link">Taktiikkataulu</a>
-  <a href="hinnasto.html" class="nav-link">Hinnasto & Aukioloajat</a> 
-  <a href="galleria.html" class="nav-link">Galleria</a> 
-  <a href="yhteystiedot.html" class="nav-link">Yhteystiedot</a> 
-  <a href="javascript:void(0);" class="icon" onclick="myFunction()"><i class="fa fa-bars"></i></a> 
-</nav> 
+<body>
+  <div id="navbar"></div>
+    <script>
+    // Load navbar.html into #navbar
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(html => {
+        document.getElementById('navbar').innerHTML = html;
+        });
+    </script>
+  <header>
+    <div class="toolbar">
+      <h1>Salibandyn taktiikkataulu</h1>
+      <button id="selectModeBtn" title="Valitse/siirrä (V)">Valitse</button>
+      <button id="pathModeBtn" title="Piirrä liikerata (P)">Polku</button>
+      <button id="ballModeBtn" title="Lisää/siirrä pallo (B)">Pallo</button>
+      <button id="animateBtn" title="Animoi valitut (A)">Animoi</button>
 
 <body>
   <header>
