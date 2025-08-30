@@ -118,23 +118,45 @@ function populateTactics(category) {
 // Load tactic into iframe
 function loadTactic(file) {
   container.innerHTML = "";
-  const iframe = document.createElement("iframe");
-  iframe.src = file;
-  iframe.width = "100%";
-  iframe.style.border = "0";
-  iframe.style.overflow = "hidden";
 
-  iframe.onload = function() {
-    try {
-      const doc = iframe.contentDocument || iframe.contentWindow.document;
-      iframe.style.height = doc.documentElement.scrollHeight + "px";
-    } catch (e) {
-      iframe.style.height = "600px";
-      console.warn("Cannot auto-resize iframe due to cross-origin policy.");
-    }
-  };
+  if (file.endsWith(".mp4")) {
+  const video = document.createElement("video");
+  video.src = file;
 
-  container.appendChild(iframe);
+  // autoplay on loop with no controls
+  video.autoplay = true;
+  video.loop = true;
+  video.muted = true;   // required for autoplay in most browsers
+  video.playsInline = true; // for iOS Safari
+
+  // styling: responsive, no hover effects
+  video.style.width = "100%";
+  video.style.display = "block";
+  video.style.margin = "0 auto";
+  video.style.outline = "none";
+  video.style.pointerEvents = "none"; // disables clicks/hover
+
+  container.appendChild(video);
+} else {
+    // Otherwise, load as iframe (for HTML tactics)
+    const iframe = document.createElement("iframe");
+    iframe.src = file;
+    iframe.width = "100%";
+    iframe.style.border = "0";
+    iframe.style.overflow = "hidden";
+
+    iframe.onload = function () {
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        iframe.style.height = doc.documentElement.scrollHeight + "px";
+      } catch (e) {
+        iframe.style.height = "600px";
+        console.warn("Cannot auto-resize iframe due to cross-origin policy.");
+      }
+    };
+
+    container.appendChild(iframe);
+  }
 }
 
 </script>

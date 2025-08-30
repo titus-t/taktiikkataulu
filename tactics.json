@@ -1,37 +1,37 @@
 {
   "Avaukset": [
-    { "name": "Nopea avaus", "file": "Taktiikat/avaukset/nopea_avaus.html" },
-    { "name": "Hidas avaus", "file": "Taktiikat/avaukset/hidas_avaus.html" },
-    { "name": "Dummy avaus 1", "file": "Taktiikat/avaukset/dummy1.html" }
-  ],
-  "Vaparit": [
-    { "name": "Nopea vapari", "file": "Taktiikat/vaparit/nopea_vapari.html" },
-    { "name": "Hidas vapari", "file": "Taktiikat/vaparit/hidas_vapari.html" },
-    { "name": "Dummy vapari 1", "file": "Taktiikat/vaparit/dummy1.html" }
+    { "name": "Nopea avaus", "desc": "Maalivahti tai puolustaja käynnistää pelin nopeasti pitkällä syötöllä ylöspäin.", "file": "Taktiikat/avaukset/nopea_avaus.mp4" },
+    { "name": "Hidas avaus", "desc": "Joukkue rakentaa rauhassa hyökkäystä omalta alueelta syöttöketjujen avulla.", "file": "Taktiikat/avaukset/hidas_avaus.mp4" },
+    { "name": "Laitakäännön kautta", "desc": "Pallo avataan laidasta ja käännetään keskelle vauhdilla.", "file": "Taktiikat/avaukset/laitakaynnon_kautta.mp4" }
   ],
   "Karvaaminen": [
-    { "name": "Agressiivinen karvaus", "file": "Taktiikat/karvaaminen/aggressiivinen.html" },
-    { "name": "Puolustava karvaus", "file": "Taktiikat/karvaaminen/puolustava.html" },
-    { "name": "Dummy karvaus 1", "file": "Taktiikat/karvaaminen/dummy1.html" }
+    { "name": "Aggressiivinen karvaus", "desc": "Korkea prässi heti vastustajan kenttäpuoliskolla, pakotetaan virhe.", "file": "Taktiikat/karvaaminen/aggressiivinen.mp4" },
+    { "name": "Puolustava karvaus", "desc": "Vetäydytään alas ja ohjataan vastustaja laitoihin.", "file": "Taktiikat/karvaaminen/puolustava.mp4" },
+    { "name": "Ansakarvaus", "desc": "Houkutellaan vastustaja kulmaan ja suljetaan syöttölinjat.", "file": "Taktiikat/karvaaminen/ansakarvaus.mp4" }
   ],
   "Vastahyökkäys": [
-    { "name": "Dummy vastahyökkäys 1", "file": "Taktiikat/vastahyokkays/dummy1.html" },
-    { "name": "Dummy vastahyökkäys 2", "file": "Taktiikat/vastahyokkays/dummy2.html" },
-    { "name": "Dummy vastahyökkäys 3", "file": "Taktiikat/vastahyokkays/dummy3.html" }
+    { "name": "Suora vastahyökkäys", "desc": "Pallonriiston jälkeen nopea syöttö kärkipelaajalle juoksuun.", "file": "Taktiikat/vastahyokkays/suora.mp4" },
+    { "name": "Kahden hyökkääjän ylivoima", "desc": "Kaksi hyökkääjää hyökkää yhtä puolustajaa vastaan.", "file": "Taktiikat/vastahyokkays/2v1.mp4" },
+    { "name": "Ristiin juoksu", "desc": "Hyökkääjät leikkaavat ristiin hämätäkseen puolustuksen.", "file": "Taktiikat/vastahyokkays/ristiinjuoksu.mp4" }
   ],
   "Kulmavaparit": [
-    { "name": "Dummy kulmavapari 1", "file": "Taktiikat/kulmavaparit/dummy1.html" },
-    { "name": "Dummy kulmavapari 2", "file": "Taktiikat/kulmavaparit/dummy2.html" },
-    { "name": "Dummy kulmavapari 3", "file": "Taktiikat/kulmavaparit/dummy3.html" }
+    { "name": "Seinäsyöttö maalin taakse", "desc": "Kulmasta nopea syöttö maalille, josta ohjaus/laukaus.", "file": "Taktiikat/kulmavaparit/kulmavapari1.mp4" },
+    { "name": "Viivasyöttö", "desc": "Kulmavapari pelataan viivaan ja sieltä laukaus.", "file": "Taktiikat/kulmavaparit/viivan_kautta.mp4" },
+    { "name": "Kääntö maalille", "desc": "Syöttö lähimmälle pelaajalle, joka jatkaa nopeasti keskelle.", "file": "Taktiikat/kulmavaparit/lyhyt_syotto.mp4" }
+  ],
+  "Vaparit": [
+    { "name": "Nopea vapari", "desc": "Vapari pelataan heti yllättäen ennen kuin vastustaja ehtii asettua.", "file": "Taktiikat/vaparit/nopea_vapari.mp4" },
+    { "name": "Hidas vapari", "desc": "Hyökkäyskuvio rakennetaan rauhassa ja etsitään syöttöpaikka.", "file": "Taktiikat/vaparit/hidas_vapari.mp4" },
+    { "name": "Syöttö viivaan", "desc": "Vapari pelataan viivaan puolustajalle, joka hakee laukaisupaikan.", "file": "Taktiikat/vaparit/syotto_viivaan.mp4" }
   ],
   "Ylivoima": [
-    { "name": "Dummy ylivoima 1", "file": "Taktiikat/ylivoima/dummy1.html" },
-    { "name": "Dummy ylivoima 2", "file": "Taktiikat/ylivoima/dummy2.html" },
-    { "name": "Dummy ylivoima 3", "file": "Taktiikat/ylivoima/dummy3.html" }
+    { "name": "2–2–1 kuvio", "desc": "Kaksi viivassa, kaksi laidassa ja yksi keskellä maalinedustalla.", "file": "Taktiikat/ylivoima/2-2-1.mp4" },
+    { "name": "Ympyräkuvio", "desc": "Pelaajat liikkuvat ympyrässä vaihtaen paikkoja, etsitään laukaisupaikka.", "file": "Taktiikat/ylivoima/ympyra.mp4" },
+    { "name": "Viivan kierto", "desc": "Pallo kiertää nopeasti viivan kautta laukaisuun.", "file": "Taktiikat/ylivoima/viivan_kierto.mp4" }
   ],
   "Alivoima": [
-    { "name": "Dummy alivoima 1", "file": "Taktiikat/alivoima/dummy1.html" },
-    { "name": "Dummy alivoima 2", "file": "Taktiikat/alivoima/dummy2.html" },
-    { "name": "Dummy alivoima 3", "file": "Taktiikat/alivoima/dummy3.html" }
+    { "name": "Neliöpuolustus", "desc": "Pelaajat muodostavat tiiviin neliön oman maalin eteen.", "file": "Taktiikat/alivoima/neliopuolustus.mp4" },
+    { "name": "Timanttimuoto", "desc": "Yksi ylhäällä, yksi alhaalla, kaksi laidassa – ohjataan laitoihin.", "file": "Taktiikat/alivoima/timantti.mp4" },
+    { "name": "Kolmio + 1", "desc": "Kolme puolustajaa muodostaa kolmion ja yksi prässää korkeammalta.", "file": "Taktiikat/alivoima/kolmio1.mp4" }
   ]
 }
