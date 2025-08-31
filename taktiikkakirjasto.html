@@ -7,6 +7,7 @@
     <link href="tyyli.css" rel="stylesheet" />
     <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
   </head>
   <body>
     <nav class="topnav" id="myTopnav">
@@ -50,6 +51,7 @@ const tacticButtons = document.getElementById("tacticButtons");
 const container = document.getElementById("tacticContainer");
 
 let tacticsData = {};
+let currentVideo = null; // reference to active video
 
 // Load JSON
 fetch("tactics.json")
@@ -96,7 +98,6 @@ function populateTactics(category) {
     btn.textContent = tactic.name;
 
     btn.addEventListener("click", () => {
-      // Remove active class from all buttons
       tacticButtons.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       loadTactic(tactic.file);
@@ -104,41 +105,71 @@ function populateTactics(category) {
 
     tacticButtons.appendChild(btn);
 
-    // Save first button
     if (index === 0) firstBtn = btn;
   });
 
-  // Automatically select the first tactic
   if (firstBtn) {
     firstBtn.classList.add("active");
     loadTactic(tacticsData[category][0].file);
   }
 }
 
-// Load tactic into iframe
+// Load tactic into iframe or video
 function loadTactic(file) {
   container.innerHTML = "";
+  currentVideo = null;
 
   if (file.endsWith(".mp4")) {
-  const video = document.createElement("video");
-  video.src = file;
+    const video = document.createElement("video");
+    video.src = file;
+    video.autoplay = true;
+    video.loop = true;
+    video.muted = true; 
+    video.playsInline = true;
 
-  // autoplay on loop with no controls
-  video.autoplay = true;
-  video.loop = true;
-  video.muted = true;   // required for autoplay in most browsers
-  video.playsInline = true; // for iOS Safari
+    video.style.width = "100%";
+    video.style.display = "block";
+    video.style.margin = "0 auto";
+    video.style.outline = "none";
 
-  // styling: responsive, no hover effects
-  video.style.width = "100%";
-  video.style.display = "block";
-  video.style.margin = "0 auto";
-  video.style.outline = "none";
-  video.style.pointerEvents = "none"; // disables clicks/hover
+    container.appendChild(video);
+    currentVideo = video;
 
-  container.appendChild(video);
-} else {
-    // Otherwise, load as iframe (for HTML tactics)
+    // Add custom controls
+    const controls = document.createElement("div");
+    controls.id = "videoControls";
+
+    // Play/Pause button
+    const playPauseBtn = document.createElement("button");
+    playPauseBtn.textContent = "Pause";
+    playPauseBtn.onclick = () => {
+      if (video.paused) {
+        video.play();
+        playPauseBtn.textContent = "Pause";
+      } else {
+        video.pause();
+        playPauseBtn.textContent = "Play";
+      }
+    };
+    controls.appendChild(playPauseBtn);
+
+    // Speed buttons
+    [0.5, 1, 2].forEach(speed => {
+      const btn = document.createElement("button");
+      btn.textContent = speed + "x";
+      if (speed === 1) btn.classList.add("active");
+      btn.onclick = () => {
+        video.playbackRate = speed;
+        controls.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        playPauseBtn.classList.remove("active");
+        btn.classList.add("active");
+      };
+      controls.appendChild(btn);
+    });
+
+    container.appendChild(controls);
+
+  } else {
     const iframe = document.createElement("iframe");
     iframe.src = file;
     iframe.width = "100%";
@@ -158,7 +189,6 @@ function loadTactic(file) {
     container.appendChild(iframe);
   }
 }
-
 </script>
   </body>
 </html>
