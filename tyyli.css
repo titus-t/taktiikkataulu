@@ -345,7 +345,7 @@ a { color: var(--accent); }
   background-color: #0b1220;
   padding: 0;
   border-radius: 5px;
-  position: relative;
+
   
   left: 120px;               /* fine-tune horizontal alignment */
   box-sizing: border-box;
@@ -397,7 +397,7 @@ a { color: var(--accent); }
   display: flex;
   gap: 10px;
   justify-content: center;
-  margin: 0px; 
+  margin: -30px; 
 }
 #videoControls button {
   padding: 6px 12px;
@@ -409,4 +409,18 @@ a { color: var(--accent); }
 }
 #videoControls button.active {
   background: #005fa3;
+}
+#categorySelector {
+  position: relative;
+  z-index: 10; /* force dropdown above iframe/container */
+}
+
+#tacticButtons {
+  position: relative;
+  z-index: 10; /* force buttons above iframe/container */
+}
+
+#tacticContainer {
+  position: relative;
+  z-index: 1; /* keep iframe behind controls */
 }
