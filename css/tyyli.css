@@ -305,145 +305,120 @@ footer {
 
 a { color: var(--accent); }
 .address, .linkki { color: #ffffff; }
+
 /* ===========================
-   Dropdown + Buttons Row
+   Dropdown + Tactic Buttons
    =========================== */
 #tacticControls {
   display: flex;
-  align-items: center;      /* vertical alignment */
-  gap: 1rem;                /* space between dropdown and buttons */
-  width: 90%;
+  align-items: center;
+  gap: 0.5rem;           /* space between dropdown and buttons */
+  justify-content: center; /* center the whole row */
+  width: 100%;            /* use full width of container */
   max-width: 1200px;
-  margin: 0 auto 10px auto; /* center container with margin below */
+  margin: 0 auto 20px auto; /* auto center */
+  left: -180px;
+  position: relative;
+  z-index: 10;
 }
 
-/* Dropdown Selector */
 #categorySelector {
-  width: 200px;             /* fixed width */
+  width: 200px;
   padding: 0.4rem 0.6rem;
   border-radius: 0.5rem;
   border: 1px solid rgba(255,255,255,0.2);
   background-color: #161f33;
   color: var(--ink);
   font-size: 14px;
-  flex-shrink: 0;           /* don’t shrink */
-
-  /* Shift left */
-  position: relative;
-  left: 120px;
+  flex-shrink: 0;
 }
 
-/* ===========================
-   Buttons / Mini Navbar
-   =========================== */
 #tacticButtons {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  justify-content: flex-start;
-  flex-grow: 1;             /* take remaining space next to dropdown */
-  background-color: #0b1220;
-  padding: 0;
-  border-radius: 5px;
-
-  
-  left: 120px;               /* fine-tune horizontal alignment */
-  box-sizing: border-box;
 }
+
+
 
 #tacticButtons button {
   background-color: #0b1220;
   color: #f2f2f2;
   border: 1px solid rgba(255,255,255,0.1);
-  padding: 10px 16px;
+  padding: 8px 14px;
   font-size: 14px;
-  cursor: pointer;
   border-radius: 4px;
   transition: background 0.2s, color 0.2s;
 }
 
-#tacticButtons button:hover {
-  background-color: #1c2842;
-  color: #fff;
-}
-
+#tacticButtons button:hover,
 #tacticButtons button.active {
   background-color: #1c2842;
   color: #fff;
 }
 
 /* ===========================
-   Iframe Container
+   Tactic Container
    =========================== */
 #tacticContainer {
   width: 90%;
   max-width: 1200px;
   background-color: #0b1220;
   padding: 20px;
-  margin: -60px auto 0 auto; /* smaller top margin */
+  margin: -60px auto 0 auto;
+  position: relative;
+  z-index: 1; /* keep video under controls */
 }
 
 #tacticContainer iframe {
-  width: 100%;             /* fill container */
-  max-width: 1200px;       /* keep original max width */
-  height: 640px;           /* keep original height */
+  width: 100%;
+  max-width: 1200px;
+  height: 640px;
   border: none;
   display: block;
 }
 
-
+/* ===========================
+   Video Controls
+   =========================== */
 #videoControls {
   position: absolute;
-  bottom: 8px;    /* closer to the video */
+  bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  flex-wrap: wrap;
   gap: 6px;
   justify-content: center;
-
+  z-index: 10;
   padding: 6px 10px;
   border-radius: 8px;
 }
 
 #videoControls button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
   background: #0077cc;
   color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 12px;
+  cursor: pointer;
 }
 
-#videoControls button.active {
+#videoControls button:hover {
   background: #005fa3;
 }
 
-/* Special style for color buttons */
-#videoControls .color-btn {
+/* Special style for round color buttons */
+.color-btn {
   width: 28px;
   height: 28px;
   border-radius: 50%;
   border: 2px solid #fff;
   padding: 0;
 }
-#categorySelector {
-  position: relative;
-  z-index: 10; /* force dropdown above iframe/container */
-}
 
-#tacticButtons {
-  position: relative;
-  z-index: 10; /* force buttons above iframe/container */
-}
-
-#tacticContainer {
-  position: relative;
-  z-index: 1; /* keep iframe behind controls */
-}
-
-
-/* Drawing overlay */
+/* ===========================
+   Drawing Overlay + Tools
+   =========================== */
 .drawing-canvas {
   position: absolute;
   top: 0;
@@ -451,7 +426,6 @@ a { color: var(--accent); }
   cursor: crosshair;
 }
 
-/* Drawing toolbar */
 #drawingTools {
   margin-top: 100px;
   display: flex;
@@ -459,19 +433,4 @@ a { color: var(--accent); }
   justify-content: center;
 }
 
-#drawingTools button {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  background: #333;
-  color: white;
-}
 
-#drawingTools .color-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  padding: 0;
-}

@@ -4,260 +4,26 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Taktiikkataulu</title>
-    <link href="tyyli.css" rel="stylesheet" />
+    <link href="css/tyyli.css" rel="stylesheet" />
     <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
   <body>
     <nav class="topnav" id="myTopnav">
       <div id="navbar"></div>
-      <script>
-      fetch('navbar.html')
-        .then(response => response.text())
-        .then(html => {
-          const navbar = document.getElementById('navbar');
-          navbar.innerHTML = html;
-
-          var path = window.location.pathname;
-          var currentPage = path.substring(path.lastIndexOf("/") + 1);
-          var links = navbar.querySelectorAll('.nav-link');
-          links.forEach(function(link) {
-              var href = link.getAttribute('href');
-              if (href === currentPage) {
-                  link.classList.add('active');
-              } else {
-                  link.classList.remove('active');
-              }
-          });
-        });
-    </script>
     </nav>
 
     <br><br>
 
-    <!-- Wrapper for selector + buttons -->
     <div id="tacticControls">
       <select id="categorySelector"></select>
       <div id="tacticButtons"></div>
     </div>
 
-    <!-- Iframe/video container -->
     <div id="tacticContainer"></div>
 
-    <script>
-const categorySelector = document.getElementById("categorySelector");
-const tacticButtons = document.getElementById("tacticButtons");
-const container = document.getElementById("tacticContainer");
-
-let tacticsData = {};
-let currentVideo = null;
-let drawingCanvas = null;
-let ctx = null;
-let drawing = false;
-let tool = "pen";
-let color = "#ff0000"; // default red
-
-// Load JSON
-fetch("tactics.json")
-  .then(res => res.json())
-  .then(data => {
-    tacticsData = data;
-    const categories = Object.keys(data);
-
-    categories.forEach(cat => {
-      const option = document.createElement("option");
-      option.value = cat;
-      option.textContent = cat;
-      categorySelector.appendChild(option);
-    });
-
-    if (categories.length > 0) {
-      categorySelector.value = categories[0];
-      populateTactics(categories[0]);
-    }
-  })
-  .catch(err => console.error("Failed to load tactics JSON:", err));
-
-categorySelector.addEventListener("change", function() {
-  populateTactics(this.value);
-});
-
-function populateTactics(category) {
-  tacticButtons.innerHTML = "";
-  container.innerHTML = "";
-  if (!category || !tacticsData[category]) return;
-
-  tacticsData[category].forEach((tactic, index) => {
-    const btn = document.createElement("button");
-    btn.textContent = tactic.name;
-    btn.addEventListener("click", () => {
-      tacticButtons.querySelectorAll("button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      loadTactic(tactic.file);
-    });
-    tacticButtons.appendChild(btn);
-    if (index === 0) {
-      btn.classList.add("active");
-      loadTactic(tactic.file);
-    }
-  });
-}
-
-function loadTactic(file) {
-  container.innerHTML = "";
-  currentVideo = null;
-  drawingCanvas = null;
-
-  if (file.endsWith(".mp4")) {
-    const videoWrapper = document.createElement("div");
-    videoWrapper.style.position = "relative";
-    videoWrapper.style.display = "inline-block";
-    videoWrapper.style.width = "100%";
-
-    const video = document.createElement("video");
-    video.src = file;
-    video.autoplay = true;
-    video.loop = true;
-    video.muted = true;
-    video.playsInline = true;
-    video.style.width = "100%";
-    video.style.display = "block";
-
-    videoWrapper.appendChild(video);
-    currentVideo = video;
-
-    // Add drawing canvas
-    drawingCanvas = document.createElement("canvas");
-    drawingCanvas.width = video.clientWidth;
-    drawingCanvas.height = video.clientHeight;
-    drawingCanvas.classList.add("drawing-canvas");
-    videoWrapper.appendChild(drawingCanvas);
-    ctx = drawingCanvas.getContext("2d");
-
-    // Resize canvas with video
-    video.addEventListener("loadedmetadata", () => {
-      drawingCanvas.width = video.videoWidth;
-      drawingCanvas.height = video.videoHeight;
-      drawingCanvas.style.width = "100%";
-      drawingCanvas.style.height = "100%";
-    });
-
-    // Drawing events
-    function getPos(e) {
-      const rect = drawingCanvas.getBoundingClientRect();
-      return {
-        x: (e.clientX - rect.left) * (drawingCanvas.width / rect.width),
-        y: (e.clientY - rect.top) * (drawingCanvas.height / rect.height)
-      };
-    }
-
-    drawingCanvas.addEventListener("mousedown", e => {
-      if (video.paused) {
-        drawing = true;
-        ctx.beginPath();
-        let pos = getPos(e);
-        ctx.moveTo(pos.x, pos.y);
-      }
-    });
-
-    drawingCanvas.addEventListener("mousemove", e => {
-      if (drawing && video.paused) {
-        let pos = getPos(e);
-        if (tool === "pen") {
-          ctx.strokeStyle = color;
-          ctx.lineWidth = 3;
-          ctx.lineTo(pos.x, pos.y);
-          ctx.stroke();
-        } else if (tool === "eraser") {
-          ctx.clearRect(pos.x - 8, pos.y - 8, 16, 16);
-        }
-      }
-    });
-
-    drawingCanvas.addEventListener("mouseup", () => {
-      drawing = false;
-    });
-
-    // Custom controls
-    const controls = document.createElement("div");
-    controls.id = "videoControls";
-
-    // Play/Pause
-    const playPauseBtn = document.createElement("button");
-    playPauseBtn.textContent = "Pause";
-    playPauseBtn.onclick = () => {
-      if (video.paused) {
-        video.play();
-        playPauseBtn.textContent = "Pause";
-      } else {
-        video.pause();
-        playPauseBtn.textContent = "Play";
-      }
-    };
-    controls.appendChild(playPauseBtn);
-
-    // Speed
-    [0.5, 1, 2].forEach(speed => {
-      const btn = document.createElement("button");
-      btn.textContent = speed + "x";
-      if (speed === 1) btn.classList.add("active");
-      btn.onclick = () => {
-        video.playbackRate = speed;
-        controls.querySelectorAll("button").forEach(b => b.classList.remove("active"));
-        playPauseBtn.classList.remove("active");
-        btn.classList.add("active");
-      };
-      controls.appendChild(btn);
-    });
-
-    // --- Drawing tools go here ---
-    // Colors
-    ["#ff0000", "#00ff00", "#0000ff", "#ffff00"].forEach(c => {
-      const colBtn = document.createElement("button");
-      colBtn.style.backgroundColor = c;
-      colBtn.className = "color-btn";
-      colBtn.onclick = () => {
-        tool = "pen";
-        color = c;
-      };
-      controls.appendChild(colBtn);
-    });
-
-    // Eraser
-    const eraserBtn = document.createElement("button");
-    eraserBtn.textContent = "Eraser";
-    eraserBtn.onclick = () => { tool = "eraser"; };
-    controls.appendChild(eraserBtn);
-
-    // Reset
-    const resetBtn = document.createElement("button");
-    resetBtn.textContent = "Reset";
-    resetBtn.onclick = () => ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-    controls.appendChild(resetBtn);
-
-    container.appendChild(videoWrapper);
-    container.appendChild(controls);
-
-
-  } else {
-    const iframe = document.createElement("iframe");
-    iframe.src = file;
-    iframe.width = "100%";
-    iframe.style.border = "0";
-    iframe.style.overflow = "hidden";
-
-    iframe.onload = function () {
-      try {
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        iframe.style.height = doc.documentElement.scrollHeight + "px";
-      } catch (e) {
-        iframe.style.height = "600px";
-      }
-    };
-
-    container.appendChild(iframe);
-  }
-}
-</script>
+    <!-- Scripts -->
+    <script src="js/navbar.js"></script>
+    <script type="module" src="js/tactics.js"></script>
   </body>
 </html>
