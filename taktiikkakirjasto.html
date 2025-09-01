@@ -7,42 +7,41 @@
     <link href="tyyli.css" rel="stylesheet" />
     <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    
   </head>
   <body>
     <nav class="topnav" id="myTopnav">
       <div id="navbar"></div>
       <script>
       fetch('navbar.html')
-  .then(response => response.text())
-  .then(html => {
-      const navbar = document.getElementById('navbar');
-      navbar.innerHTML = html;
+        .then(response => response.text())
+        .then(html => {
+          const navbar = document.getElementById('navbar');
+          navbar.innerHTML = html;
 
-      // Add active class after loading navbar
-      var path = window.location.pathname;
-      var currentPage = path.substring(path.lastIndexOf("/") + 1);
-      var links = navbar.querySelectorAll('.nav-link');
-      links.forEach(function(link) {
-          var href = link.getAttribute('href');
-          if (href === currentPage) {
-              link.classList.add('active');
-          } else {
-              link.classList.remove('active');
-          }
-      });
-  });
+          var path = window.location.pathname;
+          var currentPage = path.substring(path.lastIndexOf("/") + 1);
+          var links = navbar.querySelectorAll('.nav-link');
+          links.forEach(function(link) {
+              var href = link.getAttribute('href');
+              if (href === currentPage) {
+                  link.classList.add('active');
+              } else {
+                  link.classList.remove('active');
+              }
+          });
+        });
     </script>
     </nav>
-    <br>
-    <br>
+
+    <br><br>
+
     <!-- Wrapper for selector + buttons -->
     <div id="tacticControls">
       <select id="categorySelector"></select>
       <div id="tacticButtons"></div>
     </div>
 
-    <!-- Iframe container below -->
+    <!-- Iframe/video container -->
     <div id="tacticContainer"></div>
 
     <script>
@@ -51,17 +50,20 @@ const tacticButtons = document.getElementById("tacticButtons");
 const container = document.getElementById("tacticContainer");
 
 let tacticsData = {};
-let currentVideo = null; // reference to active video
+let currentVideo = null;
+let drawingCanvas = null;
+let ctx = null;
+let drawing = false;
+let tool = "pen";
+let color = "#ff0000"; // default red
 
 // Load JSON
 fetch("tactics.json")
   .then(res => res.json())
   .then(data => {
     tacticsData = data;
-
     const categories = Object.keys(data);
 
-    // Populate category dropdown
     categories.forEach(cat => {
       const option = document.createElement("option");
       option.value = cat;
@@ -70,76 +72,117 @@ fetch("tactics.json")
     });
 
     if (categories.length > 0) {
-      // Automatically select first category
-      const firstCategory = categories[0];
-      categorySelector.value = firstCategory;
-      populateTactics(firstCategory);
+      categorySelector.value = categories[0];
+      populateTactics(categories[0]);
     }
   })
   .catch(err => console.error("Failed to load tactics JSON:", err));
 
-// When category changes
 categorySelector.addEventListener("change", function() {
-  const cat = this.value;
-  populateTactics(cat);
+  populateTactics(this.value);
 });
 
-// Populate tactic buttons for a category
 function populateTactics(category) {
   tacticButtons.innerHTML = "";
   container.innerHTML = "";
-
   if (!category || !tacticsData[category]) return;
-
-  let firstBtn = null;
 
   tacticsData[category].forEach((tactic, index) => {
     const btn = document.createElement("button");
     btn.textContent = tactic.name;
-
     btn.addEventListener("click", () => {
       tacticButtons.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       loadTactic(tactic.file);
     });
-
     tacticButtons.appendChild(btn);
-
-    if (index === 0) firstBtn = btn;
+    if (index === 0) {
+      btn.classList.add("active");
+      loadTactic(tactic.file);
+    }
   });
-
-  if (firstBtn) {
-    firstBtn.classList.add("active");
-    loadTactic(tacticsData[category][0].file);
-  }
 }
 
-// Load tactic into iframe or video
 function loadTactic(file) {
   container.innerHTML = "";
   currentVideo = null;
+  drawingCanvas = null;
 
   if (file.endsWith(".mp4")) {
+    const videoWrapper = document.createElement("div");
+    videoWrapper.style.position = "relative";
+    videoWrapper.style.display = "inline-block";
+    videoWrapper.style.width = "100%";
+
     const video = document.createElement("video");
     video.src = file;
     video.autoplay = true;
     video.loop = true;
-    video.muted = true; 
+    video.muted = true;
     video.playsInline = true;
-
     video.style.width = "100%";
     video.style.display = "block";
-    video.style.margin = "0 auto";
-    video.style.outline = "none";
 
-    container.appendChild(video);
+    videoWrapper.appendChild(video);
     currentVideo = video;
 
-    // Add custom controls
+    // Add drawing canvas
+    drawingCanvas = document.createElement("canvas");
+    drawingCanvas.width = video.clientWidth;
+    drawingCanvas.height = video.clientHeight;
+    drawingCanvas.classList.add("drawing-canvas");
+    videoWrapper.appendChild(drawingCanvas);
+    ctx = drawingCanvas.getContext("2d");
+
+    // Resize canvas with video
+    video.addEventListener("loadedmetadata", () => {
+      drawingCanvas.width = video.videoWidth;
+      drawingCanvas.height = video.videoHeight;
+      drawingCanvas.style.width = "100%";
+      drawingCanvas.style.height = "100%";
+    });
+
+    // Drawing events
+    function getPos(e) {
+      const rect = drawingCanvas.getBoundingClientRect();
+      return {
+        x: (e.clientX - rect.left) * (drawingCanvas.width / rect.width),
+        y: (e.clientY - rect.top) * (drawingCanvas.height / rect.height)
+      };
+    }
+
+    drawingCanvas.addEventListener("mousedown", e => {
+      if (video.paused) {
+        drawing = true;
+        ctx.beginPath();
+        let pos = getPos(e);
+        ctx.moveTo(pos.x, pos.y);
+      }
+    });
+
+    drawingCanvas.addEventListener("mousemove", e => {
+      if (drawing && video.paused) {
+        let pos = getPos(e);
+        if (tool === "pen") {
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 3;
+          ctx.lineTo(pos.x, pos.y);
+          ctx.stroke();
+        } else if (tool === "eraser") {
+          ctx.clearRect(pos.x - 8, pos.y - 8, 16, 16);
+        }
+      }
+    });
+
+    drawingCanvas.addEventListener("mouseup", () => {
+      drawing = false;
+    });
+
+    // Custom controls
     const controls = document.createElement("div");
     controls.id = "videoControls";
 
-    // Play/Pause button
+    // Play/Pause
     const playPauseBtn = document.createElement("button");
     playPauseBtn.textContent = "Pause";
     playPauseBtn.onclick = () => {
@@ -153,7 +196,7 @@ function loadTactic(file) {
     };
     controls.appendChild(playPauseBtn);
 
-    // Speed buttons
+    // Speed
     [0.5, 1, 2].forEach(speed => {
       const btn = document.createElement("button");
       btn.textContent = speed + "x";
@@ -167,7 +210,34 @@ function loadTactic(file) {
       controls.appendChild(btn);
     });
 
+    // --- Drawing tools go here ---
+    // Colors
+    ["#ff0000", "#00ff00", "#0000ff", "#ffff00"].forEach(c => {
+      const colBtn = document.createElement("button");
+      colBtn.style.backgroundColor = c;
+      colBtn.className = "color-btn";
+      colBtn.onclick = () => {
+        tool = "pen";
+        color = c;
+      };
+      controls.appendChild(colBtn);
+    });
+
+    // Eraser
+    const eraserBtn = document.createElement("button");
+    eraserBtn.textContent = "Eraser";
+    eraserBtn.onclick = () => { tool = "eraser"; };
+    controls.appendChild(eraserBtn);
+
+    // Reset
+    const resetBtn = document.createElement("button");
+    resetBtn.textContent = "Reset";
+    resetBtn.onclick = () => ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+    controls.appendChild(resetBtn);
+
+    container.appendChild(videoWrapper);
     container.appendChild(controls);
+
 
   } else {
     const iframe = document.createElement("iframe");
@@ -182,7 +252,6 @@ function loadTactic(file) {
         iframe.style.height = doc.documentElement.scrollHeight + "px";
       } catch (e) {
         iframe.style.height = "600px";
-        console.warn("Cannot auto-resize iframe due to cross-origin policy.");
       }
     };
 

@@ -393,12 +393,19 @@ a { color: var(--accent); }
 
 
 #videoControls {
-  margin-top: 10px;
+  position: absolute;
+  bottom: 8px;    /* closer to the video */
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 6px;
   justify-content: center;
-  margin: -30px; 
+
+  padding: 6px 10px;
+  border-radius: 8px;
 }
+
 #videoControls button {
   padding: 6px 12px;
   border: none;
@@ -407,8 +414,18 @@ a { color: var(--accent); }
   background: #0077cc;
   color: white;
 }
+
 #videoControls button.active {
   background: #005fa3;
+}
+
+/* Special style for color buttons */
+#videoControls .color-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  padding: 0;
 }
 #categorySelector {
   position: relative;
@@ -423,4 +440,38 @@ a { color: var(--accent); }
 #tacticContainer {
   position: relative;
   z-index: 1; /* keep iframe behind controls */
+}
+
+
+/* Drawing overlay */
+.drawing-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: crosshair;
+}
+
+/* Drawing toolbar */
+#drawingTools {
+  margin-top: 100px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+#drawingTools button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: #333;
+  color: white;
+}
+
+#drawingTools .color-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  padding: 0;
 }
