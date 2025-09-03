@@ -387,7 +387,7 @@ a { color: var(--accent); }
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 6px;
+  gap: 12px;
   justify-content: center;
   z-index: 10;
   padding: 6px 10px;
