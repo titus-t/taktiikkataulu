@@ -1,4 +1,3 @@
-// js/drawing.js
 export function initDrawing(videoWrapper, video, container) {
   let drawing = false;
   let tool = "pen";
@@ -8,7 +7,7 @@ export function initDrawing(videoWrapper, video, container) {
   const ctx = drawingCanvas.getContext("2d");
   videoWrapper.appendChild(drawingCanvas);
 
-  // sync canvas with video
+  // sync canvas with video size
   video.addEventListener("loadedmetadata", () => {
     drawingCanvas.width = video.videoWidth;
     drawingCanvas.height = video.videoHeight;
@@ -54,21 +53,44 @@ export function initDrawing(videoWrapper, video, container) {
   const controls = document.createElement("div");
   controls.id = "videoControls";
 
-    // Play/Pause (icon-based)
-    const playPauseBtn = document.createElement("button");
-    playPauseBtn.innerHTML = "⏸️"; // start with pause icon
-    playPauseBtn.onclick = () => {
+  // Play/Pause
+  const playPauseBtn = document.createElement("button");
+  playPauseBtn.innerHTML = "⏸️"; 
+  playPauseBtn.onclick = () => {
     if (video.paused) {
-        video.play();
-        playPauseBtn.innerHTML = "⏸️";
+      video.play();
+      playPauseBtn.innerHTML = "⏸️";
     } else {
-        video.pause();
-        playPauseBtn.innerHTML = "▶️";
+      video.pause();
+      playPauseBtn.innerHTML = "▶️";
     }
-    };
-    controls.appendChild(playPauseBtn);
+  };
+  controls.appendChild(playPauseBtn);
 
-  // speed
+  // 🔹 Timeline slider
+  const slider = document.createElement("input");
+  slider.type = "range";
+  slider.min = 0;
+  slider.max = 100;
+  slider.value = 0;
+  slider.style.width = "300px";
+  controls.appendChild(slider);
+
+  // keep slider synced with video
+  video.addEventListener("timeupdate", () => {
+    if (!slider.dragging) {
+      slider.value = (video.currentTime / video.duration) * 100;
+    }
+  });
+
+  // allow seeking
+  slider.addEventListener("input", () => {
+    slider.dragging = true;
+    video.currentTime = (slider.value / 100) * video.duration;
+  });
+  slider.addEventListener("change", () => (slider.dragging = false));
+
+  // Speed controls
   [0.5, 1, 2].forEach(speed => {
     const btn = document.createElement("button");
     btn.textContent = speed + "x";
@@ -82,7 +104,7 @@ export function initDrawing(videoWrapper, video, container) {
     controls.appendChild(btn);
   });
 
-  // colors
+  // Color pickers
   ["#ff0000", "#00ff00", "#0000ff", "#ffff00"].forEach(c => {
     const colBtn = document.createElement("button");
     colBtn.style.backgroundColor = c;
@@ -94,13 +116,13 @@ export function initDrawing(videoWrapper, video, container) {
     controls.appendChild(colBtn);
   });
 
-  // eraser
+  // Eraser
   const eraserBtn = document.createElement("button");
   eraserBtn.textContent = "Eraser";
   eraserBtn.onclick = () => (tool = "eraser");
   controls.appendChild(eraserBtn);
 
-  // reset
+  // Reset drawings
   const resetBtn = document.createElement("button");
   resetBtn.textContent = "Reset";
   resetBtn.onclick = () =>
